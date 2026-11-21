@@ -60,55 +60,30 @@
 const canvas = document.getElementById('c');
 const ctx = canvas.getContext('2d');
 
-// Screen proportions from your image
-const SCREEN = {
-  x: 60, y: 40, w: 360, h: 160, r: 18
-};
-
-// Base eye measurements (relative to screen)
-const BASE = {
-  eyeW: 0.105,
-  eyeH: 0.40,
-  radius: 0.14,
-  gap: 0.21,
-  yOffset: 0.00,
-  angle: 0,
-  slant: 0
-};
-
+const SCREEN = { x: 60, y: 40, w: 360, h: 160, r: 18 };
+const BASE = { eyeW: 0.105, eyeH: 0.40, radius: 0.14, gap: 0.21, yOffset: 0.00, angle: 0, slant: 0 };
 let current = { ...BASE };
 let target = { ...BASE };
 let blink = 0;
 let blinkPhase = 0;
+let idleLookX = 0, idleLookY = 0, idleTargetX = 0, idleTargetY = 0, idleTimer = 0;
 
 const moods = {
   neutral:   { eyeW: 0.115, eyeH: 0.30, radius: 0.22, gap: 0.19, yOffset: 0.02, angle: 0,   topPinch: 0,   bottomPinch: 0 },
-  happy:     { eyeW: 0.15,  eyeH: 0.18, radius: 0.50, gap: 0.15, yOffset: -0.04, angle: 0,   topPinch: 0,   bottomPinch: 0.3 },
+  happy:     { eyeW: 0.16,  eyeH: 0.14, radius: 0.55, gap: 0.14, yOffset: -0.03, angle: 0,   topPinch: 0,   bottomPinch: 0.45 },
   surprised: { eyeW: 0.16,  eyeH: 0.40, radius: 0.38, gap: 0.14, yOffset: -0.05, angle: 0,   topPinch: 0,   bottomPinch: 0 },
   sleepy:    { eyeW: 0.14,  eyeH: 0.07, radius: 0.50, gap: 0.17, yOffset: 0.11, angle: 0,   topPinch: 0,   bottomPinch: 0 },
   focused:   { eyeW: 0.10,  eyeH: 0.26, radius: 0.10, gap: 0.16, yOffset: 0.00, angle: -5,  topPinch: 0.12, bottomPinch: 0 },
   mad:       { eyeW: 0.23, eyeH: 0.17, radius: 0.02, gap: 0.08, yOffset: 0.0, angle: -28, topPinch: 0.7, bottomPinch: 0 },
-  sad:       { eyeW: 0.20, eyeH: 0.15, radius: 0.02, gap: 0.11, yOffset: 0.05, angle: -15, topPinch: 0.45, bottomPinch: 0 },
+  sad:       { eyeW: 0.18, eyeH: 0.14, radius: 0.02, gap: 0.12, yOffset: 0.06, angle: 18, topPinch: 0.45, bottomPinch: 0 },
   confused:  { eyeW: 0.11,  eyeH: 0.22, radius: 0.18, gap: 0.20, yOffset: 0.02, angle: 6,   topPinch: 0.05, bottomPinch: 0 },
   cute:      { eyeW: 0.13,  eyeH: 0.16, radius: 0.45, gap: 0.16, yOffset: -0.02, angle: 0,   topPinch: 0,   bottomPinch: 0.2 }
 };
 
-function setMood(name) {
-  target = { ...moods[name] };
-}
-
-function triggerBlink() {
-  blink = 1;
-  blinkPhase = 0;
-}
-
-function easeOutCubic(t) {
-  return 1 - Math.pow(1 - t, 3);
-}
-
-function lerp(a, b, t) {
-  return a + (b - a) * easeOutCubic(Math.min(1, t * 1.8));
-}
+function setMood(name) { target = { ...moods[name] }; }
+function triggerBlink() { blink = 1; blinkPhase = 0; }
+function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+function lerp(a, b, t) { return a + (b - a) * easeOutCubic(Math.min(1, t * 1.8)); }
 
 function roundedRect(x, y, w, h, r) {
   r = Math.min(r, w/2, h/2);
@@ -127,6 +102,14 @@ function roundedRect(x, y, w, h, r) {
 }
 
 function draw() {
+  idleTimer += 0.016;
+  if (idleTimer > 2.5 + Math.random() * 3) {
+    idleTimer = 0;
+    idleTargetX = (Math.random() - 0.5) * 8;
+    idleTargetY = (Math.random() - 0.5) * 4;
+  }
+  idleLookX += (idleTargetX - idleLookX) * 0.04;
+  idleLookY += (idleTargetY - idleLookY) * 0.04;
   const t = 0.06;
   current.eyeW = lerp(current.eyeW, target.eyeW, t);
   current.eyeH = lerp(current.eyeH, target.eyeH, t);
@@ -142,10 +125,7 @@ function draw() {
     const close = Math.min(1, blinkPhase * 3.5);
     const open = Math.max(0, (blinkPhase - 0.55) * 2.2);
     blink = Math.max(0, close - open);
-    if (blinkPhase > 1.6) {
-      blink = 0;
-      blinkPhase = 0;
-    }
+    if (blinkPhase > 1.6) { blink = 0; blinkPhase = 0; }
   }
 
   const blinkSquash = blink * 0.12;
@@ -153,7 +133,6 @@ function draw() {
 
   ctx.fillStyle = '#0f1724';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
-
   ctx.fillStyle = '#7ec8e3';
   roundedRect(SCREEN.x, SCREEN.y, SCREEN.w, SCREEN.h, SCREEN.r);
 
@@ -162,8 +141,8 @@ function draw() {
   const radius = Math.min(eyeW * current.radius, eyeH / 2);
   const gap = SCREEN.w * current.gap;
   const totalW = eyeW * 2 + gap;
-  const startX = SCREEN.x + (SCREEN.w - totalW) / 2;
-  const y = SCREEN.y + (SCREEN.h - eyeH) / 2 + SCREEN.h * current.yOffset;
+  const startX = SCREEN.x + (SCREEN.w - totalW) / 2 + idleLookX;
+  const y = SCREEN.y + (SCREEN.h - eyeH) / 2 + SCREEN.h * current.yOffset + idleLookY;
 
   ctx.fillStyle = '#111';
   const angleRad = current.angle * Math.PI / 180;
@@ -173,7 +152,6 @@ function draw() {
     ctx.translate(cx, cy);
     const finalAngle = isRight ? angleRad : -angleRad;
     ctx.rotate(finalAngle);
-
     const tp = current.topPinch || 0;
 
     if (tp > 0.6) {
@@ -196,29 +174,37 @@ function draw() {
       ctx.scale(1, ry / rx);
       ctx.fill();
       ctx.restore();
+    } else if (current.bottomPinch > 0.05) {
+      const starAmount = Math.min(1, (current.bottomPinch - 0.05) / 0.4);
+      const outer = eyeW * 0.42;
+      const inner = outer * (0.85 - starAmount * 0.4);
+      const points = 5;
+      ctx.beginPath();
+      for (let i = 0; i < points * 2; i++) {
+        const angle = (i * Math.PI) / points - Math.PI / 2;
+        const r = i % 2 === 0 ? outer : inner;
+        const px = Math.cos(angle) * r;
+        const py = Math.sin(angle) * r;
+        if (i === 0) ctx.moveTo(px, py);
+        else ctx.lineTo(px, py);
+      }
+      ctx.closePath();
+      ctx.fill();
     } else {
       const r = Math.min(radius, eyeW * 0.45, eyeH * 0.45);
       roundedRect(-eyeW/2, -eyeH/2, eyeW, eyeH, r);
     }
-
     ctx.restore();
   }
 
   drawEye(startX + eyeW/2, y + eyeH/2, false);
   drawEye(startX + eyeW + gap + eyeW/2, y + eyeH/2, true);
-
   requestAnimationFrame(draw);
 }
 
 setMood('neutral');
 draw();
-
-let cycleMoods = ['neutral', 'mad'];
-let cycleIndex = 0;
-setInterval(() => {
-  cycleIndex = (cycleIndex + 1) % cycleMoods.length;
-  setMood(cycleMoods[cycleIndex]);
-}, 2500);
+setInterval(() => { if (Math.random() < 0.55) triggerBlink(); }, 2200);
 </script>
 </body>
 </html>
