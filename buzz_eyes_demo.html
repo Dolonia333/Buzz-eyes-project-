@@ -42,16 +42,24 @@
 </style>
 </head>
 <body>
-<canvas id="c" width="480" height="320"></canvas>
+<canvas id="c" width="480" height="420"></canvas>
 <div class="controls">
   <button onclick="setMood('neutral')">Neutral</button>
   <button onclick="setMood('happy')">Happy</button>
+  <button onclick="setMood('excited')">Excited</button>
   <button onclick="setMood('surprised')">Surprised</button>
   <button onclick="setMood('sleepy')">Sleepy</button>
   <button onclick="setMood('focused')">Focused</button>
   <button onclick="setMood('mad')">Mad</button>
   <button onclick="setMood('sad')">Sad</button>
+  <button onclick="setMood('worried')">Worried</button>
+  <button onclick="setMood('confused')">Confused</button>
+  <button onclick="setMood('skeptical')">Skeptical</button>
   <button onclick="setMood('cute')">Cute</button>
+  <button onclick="setMood('love')">Love</button>
+  <button onclick="setMood('playful')">Playful</button>
+  <button onclick="setMood('bored')">Bored</button>
+  <button onclick="setMood('determined')">Determined</button>
   <button onclick="triggerBlink()">Blink</button>
 </div>
 <div class="info">Eyes scaled to match your Buzz reference • Click moods to test emotion</div>
@@ -60,30 +68,74 @@
 const canvas = document.getElementById('c');
 const ctx = canvas.getContext('2d');
 
-const SCREEN = { x: 60, y: 40, w: 360, h: 160, r: 18 };
-const BASE = { eyeW: 0.105, eyeH: 0.40, radius: 0.14, gap: 0.21, yOffset: 0.00, angle: 0, slant: 0 };
+// Screen proportions matching the Buzz reference image
+const SCREEN = {
+  x: 70, y: 50, w: 340, h: 140, r: 22
+};
+
+// Base eye measurements (relative to screen)
+const BASE = {
+  eyeW: 0.105,
+  eyeH: 0.40,
+  radius: 0.14,
+  gap: 0.21,
+  yOffset: 0.00,
+  angle: 0,
+  slant: 0
+};
+
 let current = { ...BASE };
 let target = { ...BASE };
 let blink = 0;
 let blinkPhase = 0;
-let idleLookX = 0, idleLookY = 0, idleTargetX = 0, idleTargetY = 0, idleTimer = 0;
+let idleLookX = 0;
+let idleLookY = 0;
+let idleTargetX = 0;
+let idleTargetY = 0;
+let idleTimer = 0;
+let idleBreath = 0;
+let idleBreathDir = 1;
+let leanScaleL = 1;
+let leanScaleR = 1;
+let leanTargetL = 1;
+let leanTargetR = 1;
+let leanTimer = 0;
 
 const moods = {
-  neutral:   { eyeW: 0.115, eyeH: 0.30, radius: 0.22, gap: 0.19, yOffset: 0.02, angle: 0,   topPinch: 0,   bottomPinch: 0 },
-  happy:     { eyeW: 0.16,  eyeH: 0.14, radius: 0.55, gap: 0.14, yOffset: -0.03, angle: 0,   topPinch: 0,   bottomPinch: 0.45 },
-  surprised: { eyeW: 0.16,  eyeH: 0.40, radius: 0.38, gap: 0.14, yOffset: -0.05, angle: 0,   topPinch: 0,   bottomPinch: 0 },
-  sleepy:    { eyeW: 0.14,  eyeH: 0.07, radius: 0.50, gap: 0.17, yOffset: 0.11, angle: 0,   topPinch: 0,   bottomPinch: 0 },
-  focused:   { eyeW: 0.10,  eyeH: 0.26, radius: 0.10, gap: 0.16, yOffset: 0.00, angle: -5,  topPinch: 0.12, bottomPinch: 0 },
-  mad:       { eyeW: 0.23, eyeH: 0.17, radius: 0.02, gap: 0.08, yOffset: 0.0, angle: -28, topPinch: 0.7, bottomPinch: 0 },
-  sad:       { eyeW: 0.18, eyeH: 0.14, radius: 0.02, gap: 0.12, yOffset: 0.06, angle: 18, topPinch: 0.45, bottomPinch: 0 },
-  confused:  { eyeW: 0.11,  eyeH: 0.22, radius: 0.18, gap: 0.20, yOffset: 0.02, angle: 6,   topPinch: 0.05, bottomPinch: 0 },
-  cute:      { eyeW: 0.13,  eyeH: 0.16, radius: 0.45, gap: 0.16, yOffset: -0.02, angle: 0,   topPinch: 0,   bottomPinch: 0.2 }
+  neutral:   { eyeW: 0.085, eyeH: 0.38, radius: 0.55, gap: 0.28, yOffset: 0.0, angle: 0,   topPinch: 0,   bottomPinch: 0 },
+  happy:     { eyeW: 0.22,  eyeH: 0.22, radius: 0.55, gap: 0.12, yOffset: -0.02, angle: 0,   topPinch: 0,   bottomPinch: 0.45 },
+  surprised: { eyeW: 0.18,  eyeH: 0.42, radius: 0.42, gap: 0.13, yOffset: -0.06, angle: 0,   topPinch: 0,   bottomPinch: 0 },
+  sleepy:    { eyeW: 0.15,  eyeH: 0.06, radius: 0.5,  gap: 0.17, yOffset: 0.12, angle: 0,   topPinch: 0,   bottomPinch: 0 },
+  focused:   { eyeW: 0.10,  eyeH: 0.24, radius: 0.08, gap: 0.15, yOffset: 0.00, angle: -6,  topPinch: 0.15, bottomPinch: 0 },
+  mad:       { eyeW: 0.22,  eyeH: 0.18, radius: 0.02, gap: 0.09, yOffset: 0.01, angle: -18, topPinch: 0.72, bottomPinch: 0 },
+  sad:       { eyeW: 0.19,  eyeH: 0.13, radius: 0.01, gap: 0.11, yOffset: 0.08, angle: 22,  topPinch: 0.5,  bottomPinch: 0 },
+  confused:  { eyeW: 0.12,  eyeH: 0.24, radius: 0.16, gap: 0.21, yOffset: 0.01, angle: 8,   topPinch: 0.08, bottomPinch: 0 },
+  cute:      { eyeW: 0.14,  eyeH: 0.18, radius: 0.48, gap: 0.15, yOffset: -0.03, angle: 0,   topPinch: 0,   bottomPinch: 0.25 },
+  excited:   { eyeW: 0.20,  eyeH: 0.32, radius: 0.35, gap: 0.11, yOffset: -0.08, angle: -8,  topPinch: 0,   bottomPinch: 0.15 },
+  worried:   { eyeW: 0.13,  eyeH: 0.28, radius: 0.18, gap: 0.18, yOffset: 0.04, angle: 12,  topPinch: 0.2,  bottomPinch: 0 },
+  skeptical: { eyeW: 0.11,  eyeH: 0.22, radius: 0.12, gap: 0.17, yOffset: 0.02, angle: -4,  topPinch: 0.3,  bottomPinch: 0 },
+  love:      { eyeW: 0.17,  eyeH: 0.21, radius: 0.5,  gap: 0.12, yOffset: -0.05, angle: 0,   topPinch: 0,   bottomPinch: 0.58 },
+  bored:     { eyeW: 0.13,  eyeH: 0.09, radius: 0.3,  gap: 0.18, yOffset: 0.06, angle: 0,   topPinch: 0,   bottomPinch: 0 },
+  determined:{ eyeW: 0.12,  eyeH: 0.20, radius: 0.06, gap: 0.14, yOffset: 0.00, angle: -14, topPinch: 0.35, bottomPinch: 0 },
+  playful:   { eyeW: 0.14,  eyeH: 0.22, radius: 0.45, gap: 0.16, yOffset: -0.02, angle: 0, topPinch: 0,   bottomPinch: 0.32 }
 };
 
-function setMood(name) { target = { ...moods[name] }; }
-function triggerBlink() { blink = 1; blinkPhase = 0; }
-function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
-function lerp(a, b, t) { return a + (b - a) * easeOutCubic(Math.min(1, t * 1.8)); }
+function setMood(name) {
+  target = { ...moods[name] };
+}
+
+function triggerBlink() {
+  blink = 1;
+  blinkPhase = 0;
+}
+
+function easeOutCubic(t) {
+  return 1 - Math.pow(1 - t, 3);
+}
+
+function lerp(a, b, t) {
+  return a + (b - a) * easeOutCubic(Math.min(1, t * 1.8));
+}
 
 function roundedRect(x, y, w, h, r) {
   r = Math.min(r, w/2, h/2);
@@ -102,15 +154,52 @@ function roundedRect(x, y, w, h, r) {
 }
 
 function draw() {
+  // Looking around — more alive, curious drifts
   idleTimer += 0.016;
-  if (idleTimer > 2.5 + Math.random() * 3) {
+  if (idleTimer > 1.4 + Math.random() * 2.6) {
     idleTimer = 0;
-    idleTargetX = (Math.random() - 0.5) * 8;
-    idleTargetY = (Math.random() - 0.5) * 4;
+    const side = Math.random() < 0.5 ? -1 : 1;
+    const xDist = 6 + Math.random() * 14;
+    const yDist = (Math.random() - 0.5) * 6;
+    idleTargetX = side * xDist;
+    idleTargetY = yDist;
+    if (Math.random() < 0.2) {
+      idleTargetX = 0;
+      idleTargetY = 0;
+    }
   }
-  idleLookX += (idleTargetX - idleLookX) * 0.04;
-  idleLookY += (idleTargetY - idleLookY) * 0.04;
-  const t = 0.06;
+  const offsetL = Math.sin(Date.now() * 0.0008) * 0.8;
+  const offsetR = Math.sin(Date.now() * 0.0011) * 0.8;
+  idleLookX += (idleTargetX - idleLookX) * 0.022;
+  idleLookY += (idleTargetY - idleLookY) * 0.022;
+
+  // Occasional lean-in (one eye bigger, like getting closer to the screen)
+  leanTimer += 0.016;
+  if (leanTimer > 2.2 + Math.random() * 2.8) {
+    leanTimer = 0;
+    if (Math.random() < 0.75) {
+      const side = Math.random() < 0.5 ? 0 : 1;
+      const boost = 1.14 + Math.random() * 0.16;
+      leanTargetL = side === 0 ? boost : 0.92;
+      leanTargetR = side === 1 ? boost : 0.92;
+    } else {
+      leanTargetL = 1;
+      leanTargetR = 1;
+    }
+  }
+  leanScaleL += (leanTargetL - leanScaleL) * 0.04;
+  leanScaleR += (leanTargetR - leanScaleR) * 0.04;
+
+  // Eyes get bigger when looking farther (curiosity)
+  const lookDist = Math.sqrt(idleLookX*idleLookX + idleLookY*idleLookY);
+  const lookScale = 1 + Math.min(0.12, lookDist * 0.004);
+
+  // Subtle breathing
+  idleBreath += 0.006 * idleBreathDir;
+  if (idleBreath > 1 || idleBreath < 0) idleBreathDir *= -1;
+  const breathScale = 1 + Math.sin(idleBreath * Math.PI) * 0.015;
+  const sizeScale = breathScale * lookScale;
+  const t = 0.032;
   current.eyeW = lerp(current.eyeW, target.eyeW, t);
   current.eyeH = lerp(current.eyeH, target.eyeH, t);
   current.radius = lerp(current.radius, target.radius, t);
@@ -120,91 +209,203 @@ function draw() {
   current.topPinch = lerp(current.topPinch || 0, target.topPinch || 0, t);
   current.bottomPinch = lerp(current.bottomPinch || 0, target.bottomPinch || 0, t);
 
+  // Better blink: fluid, less frequent like the reference
   if (blink > 0) {
-    blinkPhase += 0.09;
-    const close = Math.min(1, blinkPhase * 3.5);
-    const open = Math.max(0, (blinkPhase - 0.55) * 2.2);
+    blinkPhase += 0.065;
+    const close = Math.min(1, blinkPhase * 2.8);
+    const open = Math.max(0, (blinkPhase - 0.7) * 1.8);
     blink = Math.max(0, close - open);
-    if (blinkPhase > 1.6) { blink = 0; blinkPhase = 0; }
+    if (blinkPhase > 2.2) {
+      blink = 0;
+      blinkPhase = 0;
+    }
   }
 
-  const blinkSquash = blink * 0.12;
+  const blinkSquash = blink * 0.12; // subtler squash
   const blinkHeight = 1 - blink * 0.97;
 
+  // Clear
   ctx.fillStyle = '#0f1724';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Simple device body matching the reference
+  ctx.fillStyle = '#1e2937';
+  const bodyX = SCREEN.x - 36;
+  const bodyY = SCREEN.y - 40;
+  const bodyW = SCREEN.w + 72;
+  const bodyH = SCREEN.h + 200;
+  roundedRect(bodyX, bodyY, bodyW, bodyH, 42);
+
+  // Antenna — top right like the reference
+  const antX = SCREEN.x + SCREEN.w - 18;
+  ctx.fillStyle = '#cbd5e1';
+  roundedRect(antX - 5, SCREEN.y - 58, 10, 26, 4);
+  ctx.fillStyle = '#f9a8d4';
+  ctx.beginPath();
+  ctx.arc(antX, SCREEN.y - 64, 11, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = '#1e2937';
+  ctx.lineWidth = 3;
+  ctx.stroke();
+
+  // Draw screen
   ctx.fillStyle = '#7ec8e3';
   roundedRect(SCREEN.x, SCREEN.y, SCREEN.w, SCREEN.h, SCREEN.r);
 
-  const eyeW = SCREEN.w * current.eyeW * (1 + blinkSquash);
-  const eyeH = SCREEN.h * current.eyeH * blinkHeight;
-  const radius = Math.min(eyeW * current.radius, eyeH / 2);
-  const gap = SCREEN.w * current.gap;
-  const totalW = eyeW * 2 + gap;
-  const startX = SCREEN.x + (SCREEN.w - totalW) / 2 + idleLookX;
-  const y = SCREEN.y + (SCREEN.h - eyeH) / 2 + SCREEN.h * current.yOffset + idleLookY;
+  // Keypad (6 buttons)
+  const btnW = 42, btnH = 36, btnGap = 16;
+  const startBtnX = bodyX + (bodyW - (btnW * 3 + btnGap * 2)) / 2;
+  const startBtnY = SCREEN.y + SCREEN.h + 28;
+  ctx.fillStyle = '#475569';
+  for (let row = 0; row < 2; row++) {
+    for (let col = 0; col < 3; col++) {
+      const bx = startBtnX + col * (btnW + btnGap);
+      const by = startBtnY + row * (btnH + 14);
+      roundedRect(bx, by, btnW, btnH, 8);
+    }
+  }
 
+  // Calculate eye dimensions
+  const baseEyeW = SCREEN.w * current.eyeW * (1 + blinkSquash) * sizeScale;
+  const baseEyeH = SCREEN.h * current.eyeH * blinkHeight * sizeScale;
+  const eyeWL = baseEyeW * leanScaleL;
+  const eyeWR = baseEyeW * leanScaleR;
+  const eyeHL = baseEyeH * leanScaleL;
+  const eyeHR = baseEyeH * leanScaleR;
+  const radius = Math.min(baseEyeW * current.radius, baseEyeH / 2);
+  const gap = SCREEN.w * current.gap;
+  const totalW = eyeWL + eyeWR + gap;
+  const startX = SCREEN.x + (SCREEN.w - totalW) / 2 + idleLookX;
+  const y = SCREEN.y + (SCREEN.h - baseEyeH) / 2 + SCREEN.h * current.yOffset + idleLookY;
+
+  // Draw both eyes with optional angle
   ctx.fillStyle = '#111';
   const angleRad = current.angle * Math.PI / 180;
 
-  function drawEye(cx, cy, isRight) {
+  function drawEye(cx, cy, w, h, isRight) {
     ctx.save();
     ctx.translate(cx, cy);
+    // Opposite angles — flipped so eyes tilt upward (angry) not downward (sad)
     const finalAngle = isRight ? angleRad : -angleRad;
     ctx.rotate(finalAngle);
-    const tp = current.topPinch || 0;
+    // Apply blink squash to all shapes
+    ctx.scale(1, blinkHeight);
 
-    if (tp > 0.6) {
+    const tp = current.topPinch || 0;
+    const bp = current.bottomPinch || 0;
+    const eyeW = w;
+    const eyeH = h;
+
+    if (tp > 0.55) {
+      // Mad: sharp half-circles — curve at bottom, flat at top (matching reference)
       ctx.beginPath();
-      const rx = eyeW * 0.5;
-      const ry = eyeH * 0.55;
-      ctx.arc(0, 0, rx, 0, Math.PI, false);
+      const rx = eyeW * 0.52;
+      const ry = eyeH * 0.58;
+      ctx.arc(0, 0, rx, 0, Math.PI, false); // bottom half
       ctx.closePath();
       ctx.save();
       ctx.scale(1, ry / rx);
       ctx.fill();
       ctx.restore();
-    } else if (tp > 0.3) {
-      ctx.beginPath();
-      const rx = eyeW * 0.46;
-      const ry = eyeH * 0.48;
-      ctx.arc(0, 0, rx, 0, Math.PI, false);
-      ctx.closePath();
+    } else if (tp > 0.28) {
+      // Sad: softer drooped half
       ctx.save();
+      const rx = eyeW * 0.48;
+      const ry = eyeH * 0.5;
       ctx.scale(1, ry / rx);
+      ctx.beginPath();
+      ctx.arc(0, eyeH * 0.02, rx, 0, Math.PI, false);
+      ctx.closePath();
       ctx.fill();
       ctx.restore();
-    } else if (current.bottomPinch > 0.05) {
-      const starAmount = Math.min(1, (current.bottomPinch - 0.05) / 0.4);
-      const outer = eyeW * 0.42;
-      const inner = outer * (0.85 - starAmount * 0.4);
-      const points = 5;
+    } else if (bp > 0.5) {
+      // Love: clear hearts
+      const s = eyeW * 0.8;
       ctx.beginPath();
-      for (let i = 0; i < points * 2; i++) {
-        const angle = (i * Math.PI) / points - Math.PI / 2;
-        const r = i % 2 === 0 ? outer : inner;
-        const px = Math.cos(angle) * r;
-        const py = Math.sin(angle) * r;
-        if (i === 0) ctx.moveTo(px, py);
-        else ctx.lineTo(px, py);
+      ctx.moveTo(0, s * 0.45);
+      ctx.bezierCurveTo(-s * 1.15, -s * 0.02, -s * 0.48, -s * 1.12, 0, -s * 0.28);
+      ctx.bezierCurveTo(s * 0.48, -s * 1.12, s * 1.15, -s * 0.02, 0, s * 0.45);
+      ctx.closePath();
+      ctx.fill();
+    } else if (bp > 0.42) {
+      // Happy: clean upward smile arc
+      const rx = eyeW * 0.72;
+      const ry = eyeH * 0.5;
+      ctx.beginPath();
+      ctx.ellipse(0, eyeH * 0.2, rx, ry, 0, Math.PI * 0.9, Math.PI * 2.1, false);
+      ctx.ellipse(0, eyeH * 0.2, rx * 0.35, ry * 0.2, 0, Math.PI * 2.1, Math.PI * 0.9, true);
+      ctx.closePath();
+      ctx.fill();
+    } else if (bp > 0.28) {
+      // Playful: asymmetric — left open oval, right wink curve
+      if (isRight) {
+        // Right eye: wink curve
+        ctx.beginPath();
+        ctx.moveTo(-eyeW * 0.35, eyeH * 0.05);
+        ctx.quadraticCurveTo(0, -eyeH * 0.45, eyeW * 0.35, eyeH * 0.05);
+        ctx.lineWidth = Math.max(3, eyeH * 0.35);
+        ctx.strokeStyle = '#111';
+        ctx.stroke();
+      } else {
+        // Left eye: open oval
+        const r = Math.min(eyeW * 0.42, eyeH * 0.42);
+        roundedRect(-eyeW * 0.4, -eyeH * 0.45, eyeW * 0.8, eyeH * 0.9, r);
       }
+    } else if (bp > 0.18) {
+      // Cute: rounder hearts
+      const s = eyeW * 0.72;
+      ctx.beginPath();
+      ctx.moveTo(0, s * 0.38);
+      ctx.bezierCurveTo(-s * 1.05, -s * 0.08, -s * 0.42, -s * 1.02, 0, -s * 0.22);
+      ctx.bezierCurveTo(s * 0.42, -s * 1.02, s * 1.05, -s * 0.08, 0, s * 0.38);
       ctx.closePath();
       ctx.fill();
+    } else if (eyeH < eyeW * 0.42) {
+      // Sleepy: thin soft bar
+      const r = Math.min(eyeW * 0.4, eyeH * 0.9);
+      roundedRect(-eyeW * 0.48, -eyeH * 0.5, eyeW * 0.96, eyeH, r);
     } else {
-      const r = Math.min(radius, eyeW * 0.45, eyeH * 0.45);
+      // Neutral / Surprised / Focused: vertical capsule like the reference
+      const r = eyeW * 0.48;
       roundedRect(-eyeW/2, -eyeH/2, eyeW, eyeH, r);
     }
+
     ctx.restore();
   }
 
-  drawEye(startX + eyeW/2, y + eyeH/2, false);
-  drawEye(startX + eyeW + gap + eyeW/2, y + eyeH/2, true);
+  const leftCx = startX + eyeWL/2 + offsetL;
+  const rightCx = startX + eyeWL + gap + eyeWR/2 + offsetR;
+  const cy = y + baseEyeH/2;
+
+  drawEye(leftCx, cy, eyeWL, eyeHL, false);
+  drawEye(rightCx, cy, eyeWR, eyeHR, true);
+
   requestAnimationFrame(draw);
 }
 
+// Start
 setMood('neutral');
 draw();
-setInterval(() => { if (Math.random() < 0.55) triggerBlink(); }, 2200);
+
+// Natural idle blinks — rarer and more real (skip when happy)
+setInterval(() => {
+  if (target.bottomPinch > 0.35) return;
+  if (Math.random() < 0.28) {
+    triggerBlink();
+    // Occasional double blink, less often
+    if (Math.random() < 0.15) setTimeout(triggerBlink, 420);
+  }
+}, 3200);
+
+// Occasional emotion shifts (less frequent so neutral is visible)
+const idleMoods = ['neutral', 'neutral', 'neutral', 'happy', 'focused', 'surprised', 'neutral', 'mad', 'sad', 'worried', 'cute', 'playful', 'neutral', 'determined'];
+let idleMoodIndex = 0;
+setInterval(() => {
+  if (Math.random() < 0.35) {
+    idleMoodIndex = (idleMoodIndex + 1) % idleMoods.length;
+    setMood(idleMoods[idleMoodIndex]);
+  }
+}, 4800);
 </script>
 </body>
 </html>
