@@ -86,6 +86,10 @@ Prototype v0.1. These are the parts we're designing around, still to be confirme
 | **Power** | Small LiPo cell, USB-C charging |
 | **Size** | About 56 x 63 x 9 mm (target) |
 
+## Take Buzz apart
+
+`prototype/take-buzz-apart.html` is an interactive 3D teardown of the prototype. Open it in any browser (no build step): drag to rotate, explode it into its nine layers, tap a part to see why it's there, why it's the pick for the prototype and where to buy it, and run all 32 color expressions on its screen. **Snap it on** plays the boot sequence with the chirp. It also has the full parts list with quantities and prices.
+
 ## Try it on a Flipper Zero
 
 The Flipper Zero's 128x64 screen is the same width as Buzz's face, so it's the fastest way to see the eyes move on real hardware. It's monochrome, so it shows the shapes and timing; the color shows up on the real panel and in the previews above. The app plays all 32 expressions plus the snap-on boot, flashes the LED like the antenna bead and chirps on startup.
@@ -150,6 +154,8 @@ The full guide, with the rules for using the eyes and the moments to film for ma
 .
 ├── README.md                 ← you are here
 ├── buzz_eyes_demo.html       ← browser prototype (parametric eyes)
+├── prototype/
+│   └── take-buzz-apart.html  ← interactive 3D teardown + parts list
 ├── flipper/
 │   └── buzz_eyes/            ← Flipper Zero app and portable C engine (Signal eyes)
 ├── tools/
