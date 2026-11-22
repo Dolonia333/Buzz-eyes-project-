@@ -107,6 +107,8 @@ Ideas for making the keys feel alive:
 
 The keys are wired as a 4 × 3 matrix so all twelve use only seven pins on the XIAO.
 
+What the keys need to work (firmware, Bluetooth profiles, the companion app, and what iPhone and Android allow for music, camera, replies and more) is in [docs/KEYS_AND_SOFTWARE.md](docs/KEYS_AND_SOFTWARE.md).
+
 ## Take Buzz apart
 
 `prototype/take-buzz-apart.html` is an interactive 3D teardown of the prototype. Open it in any browser (no build step): drag to rotate, explode it into its nine layers, tap a part to see why it's there, why it's the pick for the prototype and where to buy it, and run all 32 color expressions on its screen. **Snap it on** plays the boot sequence with the chirp. It also has the full parts list with quantities and prices.
@@ -184,6 +186,7 @@ The full guide, with the rules for using the eyes and the moments to film for ma
 │   └── frame_dump.c
 └── docs/
     ├── BRAND.md              ← brand kit: logo, colors, type, voice
+    ├── KEYS_AND_SOFTWARE.md  ← keypad, phone features, firmware and app plan
     ├── brand/                ← hero, logo, app icons, palette and type images
     ├── expressions/          ← animated previews of every expression
     ├── SCOPE.md              ← what is in / out of scope

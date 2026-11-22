@@ -28,9 +28,13 @@
 - [ ] Wire the keys, RGB antenna LED, buzzer and vibration motor
 - [ ] Tune the hall sensor so it tells the phone's magnets from Buzz's own ring
 
-## Phase 3: Phone connection
+## Phase 3: Phone connection (see KEYS_AND_SOFTWARE.md)
 
+- [ ] Key matrix scanning, debounce, short/long press and instant face + haptic feedback
+- [ ] Music: BLE HID media keys, plus AMS on iPhone to trigger Vibing
+- [ ] Notifications: ANCS on iPhone to trigger Alert
 - [ ] Bluetooth link to a companion app
+- [ ] Companion app: camera screen for Say cheese, quick replies, Find my phone, key settings
 - [ ] Map phone events to moods: notifications, music, calls, focus mode, camera
 - [ ] Simple message format so the app can request a mood
 
