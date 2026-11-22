@@ -56,24 +56,29 @@ Prices are each retailer's listed single-unit price at the time of writing, befo
 
 | # | Part | Qty | Why | Why this one | Price |
 |---|---|---|---|---|---|
-| 19 | 3D-printed front and back shell | 1 set | The body | Silk silver PLA looks metallic off the printer; sand + chrome paint for the mirror look | Print |
-| 20 | 3D-printed key caps (12), antenna stem, bead diffuser | 1 set | Keys and antenna | Print the bead in white or clear PLA so the LED glows through | Print |
+| 19 | Front and back shell in **clear resin (SLA), frosted** | 1 set | The see-through body | Only resin prints come out truly clear. Wet-sand and matte-coat for the frosted look, which hides fingerprints and small scratches | Print |
+| 20 | Matte clear spray, UV-resistant | 1 | Frosted finish and protection | Stops clear resin from yellowing in sunlight | Small |
+| 20a | Black inner chassis (printed, opaque) | 1 | Holds every part in place inside the see-through shell | Makes the inside look organized, with wire channels | Print |
+| 20b | Silver key caps with engraved icons | 12 | The keys | Opaque silver matches the mock-up and hides the switches; icons paint-filled | Print |
+| 20c | Antenna stem and clear bead diffuser | 1 set | Antenna light | Clear resin bead glows with the LED | Print |
+| 20d | Black screen mask (paint or thin printed frame) | 1 | Hides the screen's edges behind the frosted shell | Makes the blue screen look crisp | Small |
+| 20e | Branded battery wrap or sticker | 1 | Covers the silver battery pouch, which shows through | Turns the battery into a branded detail | Small |
 | 21 | Clear acrylic, 1 to 2 mm, cut to 36 × 21 mm | 1 | Screen lens | Protects the screen, looks like glass | Small |
 | 22 | [DIY magnetic ring kit](https://www.newegg.com/nakedcellphone-diy-mount-compatible-with-magsafe/p/0SB-019N-000C2) | 1 | Snaps onto MagSafe | Use the ring with magnets inside, not the plain metal one | See site |
-| 23 | M2 heat-set inserts + M2 × 6 mm screws | 4 | Back shell opens for fixes | Inserts survive opening many times | Small |
-| 24 | Kapton tape | 1 roll | Insulates the battery and boards | Thin and heat-proof | Small |
+| 23 | Self-tapping M2 × 6 mm screws | 4 | Back shell opens for fixes | Safer than heat-set inserts in resin, which can crack. Give the screw posts thick walls | Small |
+| 24 | Black Kapton tape | 1 roll | Insulates the battery and boards | Black disappears behind the frosted shell; amber shows | Small |
 | 25 | Thin double-sided foam tape | 1 | Holds the battery in place | Cushions the battery, no glue on the pouch | Small |
 | 26 | E6000 or 2-part epoxy | 1 | Magnet ring and lens | Grips PLA and acrylic | Small |
-| 27 | 30 AWG silicone wire (several colors) | 1 | All internal wiring | Thin and flexible so it folds into a 9 to 18 mm case | Kit |
+| 27 | 30 AWG silicone wire in matched colors (black + blue) | 1 | All internal wiring, visible through the shell | Matched colors in the chassis channels look intentional | Kit |
 | 28 | Jumper wires + breadboard | 1 | Desk testing before it goes in the case | Test everything before soldering | Kit |
 
 ### Tools (one-time)
 
-Soldering iron and stand, solder and flux, flush cutters, tweezers, wire strippers, a multimeter (to check polarity and voltage), USB-C cable, 3D printer or print service, heat-set insert tip, sandpaper, safety glasses.
+Soldering iron and stand, solder and flux, flush cutters, tweezers, wire strippers, a multimeter (to check polarity and voltage), USB-C cable, resin print service or resin printer (plus nitrile gloves and isopropyl alcohol if printing at home), wet sandpaper from 400 to 2000 grit, safety glasses.
 
 ### Cost
 
-The listed parts with known prices (screen, XIAO, IMU, battery, motor) come to about $42. Adding the hall sensor, keypad chip, magnet ring, kit parts, printing and shipping, **budget roughly $90 to $130 for the first unit**, less per unit after that. This is an estimate; prices change.
+The listed parts with known prices (screen, XIAO, IMU, battery, motor) come to about $42. Adding the hall sensor, keypad chip, magnet ring, kit parts, printing and shipping, **budget roughly $110 to $160 for the first unit with clear resin printing and finishing**, less per unit after that. This is an estimate; prices change.
 
 ---
 
@@ -150,17 +155,55 @@ The XIAO ESP32C3 has **11 usable pins (D0 to D10)**. Everything wired directly w
 
 ---
 
-## 5. Enclosure
+## 5. Enclosure: frosted see-through shell
 
-- **Size:** about 56 × 63 mm. Plan for about **18 mm thick** with these off-the-shelf boards (the product target is 9 mm with a custom board later).
-- **Material:** silk silver PLA, or PLA sanded and chrome-painted for the mock-up's mirror finish.
-- **Front shell:** screen window (36 × 21 mm) for the lens, 12 round key holes in a 4 × 3 grid, antenna stem hole top right.
-- **Bottom edge:** a slot for the XIAO's **USB-C port**. Position the XIAO so its port sits flush with this slot.
-- **Back shell:** 4 heat-set inserts and M2 screws, flat outside for the magnet ring, a small hole for the power switch.
-- **Antenna:** printed stem with the NeoPixel at the top inside a white or clear printed bead.
-- **Print settings (starting point):** 0.12 to 0.16 mm layers, 3 walls, 20% infill, print the front face down for a smooth surface.
+The shell is **frosted clear resin**, so you can see the parts inside. That means the inside has to look as designed as the outside.
 
-Order of layers, front to back: shell and lens, keys on their perfboard, screen, XIAO + IMU + hall + keypad chip, battery with motor and buzzer beside it, back shell, magnet ring.
+### Shell
+
+- **Size:** about 56 × 63 mm, about 18 mm thick with these off-the-shelf boards (the product target is 9 mm with a custom board later).
+- **Material:** clear resin printed on a resin (SLA) printer. Filament printers can only make cloudy translucent PETG, which is fine for fit tests only.
+- **Where to print:** a resin print service such as JLCPCB or Craftcloud, or a home resin printer.
+- **Finish for frosted:** wash and cure, wet-sand from 400 up to 2000 grit, then a **matte, UV-resistant clear coat**. The matte coat gives the frosted look; the UV protection stops yellowing.
+- **Resin shrink:** add about 0.2 mm to the key holes, USB-C slot and screen window.
+- **Fit test first:** print one shell in cheap gray resin before the clear one.
+
+### Front shell
+
+- Screen window, 36 × 21 mm, for the lens
+- **Black screen mask:** paint the inside border of the window black, or add a thin printed black frame, so the screen's edges and ribbon cable are hidden
+- 12 round key holes in a 4 × 3 grid
+- Antenna stem hole, top right
+- **Bottom edge:** slot for the XIAO's USB-C port, flush with the edge
+
+### Inside: make it look intentional
+
+- **Black inner chassis:** an opaque printed tray that holds the screen, boards and battery in fixed spots. Through the frosted shell you see a tidy skeleton.
+- **Wire channels** in the chassis, with **matched-color wire** (black and blue) cut short.
+- **Black circuit boards** where there's a choice.
+- **Black Kapton tape** instead of amber.
+- **Branded battery wrap or sticker** over the battery's silver pouch. Never glue to the pouch.
+- **Antenna light:** with a see-through shell, the LED glows through the whole case. To light only the bead, paint a black ring around the stem inside.
+
+### Keys
+
+- **Silver key caps** (opaque) with **engraved icons filled with paint**: heart (Pet), face (Mood), music note, camera, 1, 2, 3, Find, Focus, Mute, Game, Back.
+- Each cap has a **lip inside the shell** so it can't fall out.
+- About **0.2 mm clearance** around each cap, and switches mounted so a cap travels about **0.3 mm** before it clicks.
+- **For unit two:** try a one-piece **cast silicone keypad** (frosted or clear silicone poured into a 3D-printed mold) for a softer, premium feel.
+- **Optional backlit keys:** with frosted or clear caps, a few NeoPixels under the keypad can light the keys in the mood's color. Costs more battery and wiring.
+
+### Back shell
+
+- Same frosted resin. The magnet ring on the outside shows through as a design detail.
+- **Four self-tapping M2 screws** into thick screw posts (heat-set inserts can crack resin).
+- Small hole for the power switch.
+
+### Print settings (starting point)
+
+Resin at 0.05 mm layers, front face up so the visible surface is smooth, supports on the inside faces only.
+
+Order of layers, front to back: frosted shell with mask and lens, keys on their perfboard, screen, black chassis, XIAO + IMU + hall + keypad chip, battery (wrapped) with motor and buzzer beside it, frosted back shell, magnet ring.
 
 ---
 
@@ -177,12 +220,12 @@ Order of layers, front to back: shell and lens, keys on their perfboard, screen,
 
 ### Phase B: First fit
 
-7. Print the shell, lens frame, caps, antenna and back.
-8. Melt in the heat-set inserts.
+7. Print a fit-test shell in gray resin, then the clear shell, chassis, caps, antenna and back.
+8. Wash, cure, wet-sand and matte-coat the clear parts. Paint the screen mask and fill the key icons.
 9. Solder the 12 switches and diodes onto the perfboard, sized to the key holes.
-10. Replace jumpers with short silicone wires.
-11. Fit the layers in order. Kapton under the battery, foam tape to hold it.
-12. Check the USB-C port lines up with the bottom slot. Close the back with 4 screws.
+10. Replace jumpers with short matched-color silicone wires, routed in the chassis channels.
+11. Fit the layers into the chassis in order. Black Kapton under the battery, foam tape to hold it, battery wrap on top.
+12. Check the USB-C port lines up with the bottom slot. Close the back with 4 self-tapping screws (don't overtighten in resin).
 13. Glue the magnet ring to the outside of the back. Let it cure fully.
 
 ### Phase C: Second, cleaner unit

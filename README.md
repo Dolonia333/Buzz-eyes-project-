@@ -84,7 +84,7 @@ Prototype v0.1. These are the parts we're designing around, still to be confirme
 | **Sensors** | 6-axis IMU (motion, tilt, free fall) and a hall-effect sensor (MagSafe attach and detach) |
 | **Feedback** | NeoPixel-type RGB LED in the antenna bead, piezo buzzer, vibration motor |
 | **Controls** | Twelve round keys in a 4 × 3 grid, BlackBerry style (see [The keypad](#the-keypad)) |
-| **Body** | Silver shell, USB-C charging port on the bottom edge |
+| **Body** | Frosted clear resin shell over a black inner chassis, silver keys, USB-C charging port on the bottom edge |
 | **Attach** | MagSafe-compatible magnet ring with an alignment magnet |
 | **Power** | 150 mAh LiPo (350 mAh backup) on a JST plug through a power switch, USB-C charging on the bottom edge |
 | **Size** | About 56 x 63 x 9 mm (target) |
