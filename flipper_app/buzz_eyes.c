@@ -41,57 +41,61 @@ static void draw_eye(Canvas* canvas, int x, int y, Mood mood, bool is_right, boo
     canvas_set_color(canvas, ColorBlack);
 
     if(blink) {
-        canvas_draw_box(canvas, x, y - 1, 8, 2);
+        canvas_draw_box(canvas, x, y - 1, 12, 2);
         return;
     }
 
     switch(mood) {
     case MoodNeutral:
-        canvas_draw_rbox(canvas, x, y - 6, 8, 12, 3);
+        // 12 x 14 so the eyes read on a 128x64 screen
+        canvas_draw_rbox(canvas, x, y - 7, 12, 14, 4);
         break;
 
     case MoodHappy:
-        canvas_draw_circle(canvas, x + 4, y + 2, 5);
+        // Upward smile (circle masked by white box)
+        canvas_draw_circle(canvas, x + 6, y + 3, 7);
         canvas_set_color(canvas, ColorWhite);
-        canvas_draw_box(canvas, x - 1, y - 4, 10, 6);
+        canvas_draw_box(canvas, x - 2, y - 5, 16, 8);
         canvas_set_color(canvas, ColorBlack);
         break;
 
     case MoodMad:
-        canvas_draw_circle(canvas, x + 4, y + 1, 6);
+        // Half-circle bottom curve
+        canvas_draw_circle(canvas, x + 6, y + 2, 8);
         canvas_set_color(canvas, ColorWhite);
-        canvas_draw_box(canvas, x - 2, y - 6, 12, 6);
+        canvas_draw_box(canvas, x - 3, y - 8, 18, 9);
         canvas_set_color(canvas, ColorBlack);
         break;
 
     case MoodSad:
-        canvas_draw_circle(canvas, x + 4, y + 2, 5);
+        canvas_draw_circle(canvas, x + 6, y + 3, 7);
         canvas_set_color(canvas, ColorWhite);
-        canvas_draw_box(canvas, x - 1, y - 3, 10, 5);
+        canvas_draw_box(canvas, x - 2, y - 4, 16, 7);
         canvas_set_color(canvas, ColorBlack);
         break;
 
     case MoodSleepy:
-        canvas_draw_box(canvas, x, y - 1, 10, 3);
+        canvas_draw_box(canvas, x, y - 2, 14, 4);
         break;
 
     case MoodLove:
-        canvas_draw_circle(canvas, x + 2, y - 1, 3);
-        canvas_draw_circle(canvas, x + 6, y - 1, 3);
-        canvas_draw_box(canvas, x + 1, y, 6, 4);
+        canvas_draw_circle(canvas, x + 3, y - 2, 4);
+        canvas_draw_circle(canvas, x + 9, y - 2, 4);
+        canvas_draw_box(canvas, x + 2, y + 1, 8, 6);
         break;
 
     case MoodPlayful:
         if(is_right) {
-            canvas_draw_line(canvas, x, y, x + 8, y);
-            canvas_draw_line(canvas, x + 1, y - 1, x + 7, y - 1);
+            // Wink
+            canvas_draw_line(canvas, x, y, x + 12, y);
+            canvas_draw_line(canvas, x + 1, y - 1, x + 11, y - 1);
         } else {
-            canvas_draw_rbox(canvas, x, y - 5, 8, 10, 3);
+            canvas_draw_rbox(canvas, x, y - 6, 12, 12, 4);
         }
         break;
 
     default:
-        canvas_draw_rbox(canvas, x, y - 6, 8, 12, 3);
+        canvas_draw_rbox(canvas, x, y - 7, 12, 14, 4);
         break;
     }
 }
@@ -103,20 +107,18 @@ static void draw_callback(Canvas* canvas, void* context) {
     canvas_set_font(canvas, FontSecondary);
     canvas_draw_str(canvas, 2, 10, mood_names[app->mood]);
 
-    int eye_y = 32;
-    int left_x = 42 + app->look_x;
-    int right_x = 78 + app->look_x;
+    int eye_y = 37;
+    int left_x = 40 + app->look_x;
+    int right_x = 76 + app->look_x;
 
     draw_eye(canvas, left_x, eye_y, app->mood, false, app->blink);
     draw_eye(canvas, right_x, eye_y, app->mood, true, app->blink);
-
-    canvas_set_font(canvas, FontSecondary);
-    canvas_draw_str(canvas, 2, 62, "OK:mood  L/R:look  U:blink");
 }
 
 static void input_callback(InputEvent* input_event, void* context) {
     BuzzEyesApp* app = context;
-    if(input_event->type == InputTypePress || input_event->type == InputTypeShort) {
+    // Short only: Press and Short both fire for one tap, which would skip moods.
+    if(input_event->type == InputTypeShort) {
         furi_message_queue_put(app->event_queue, input_event, 0);
     }
 }
@@ -170,6 +172,7 @@ int32_t buzz_eyes_app(void* p) {
             }
         }
 
+        // Idle behavior
         uint32_t now = furi_get_tick();
         if(now - app->last_idle > 2000) {
             app->last_idle = now;
