@@ -34,7 +34,7 @@ a{color:var(--blue)}
 .layer svg *{pointer-events:visiblePainted}
 .layer.dim{opacity:.18}
 .layer.sel{filter:drop-shadow(0 0 6px rgba(106,220,255,.8))}
-.layer canvas{position:absolute;image-rendering:pixelated;filter:drop-shadow(0 0 2px rgba(255,255,255,.35));pointer-events:auto}
+.layer canvas{position:absolute;image-rendering:pixelated;filter:none;pointer-events:auto}
 .tag{position:absolute;left:14px;top:12px;font-size:13px;color:var(--dim)}
 .tools{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;align-items:center}
 button,select{font:inherit;color:var(--ink);background:#1a2029;border:1px solid #2c3543;border-radius:12px;min-height:44px;padding:0 16px;cursor:pointer}
@@ -128,7 +128,7 @@ td.n{text-align:right;white-space:nowrap}
 /* ---------- parts and layers (all geometry in mm, viewBox 0 -16 56 79) ---------- */
 const OUTER='M17 0H39A17 17 0 0 1 56 17V46A17 17 0 0 1 39 63H17A17 17 0 0 1 0 46V17A17 17 0 0 1 17 0Z';
 const rr=(x,y,w,h,r)=>`M${x+r} ${y}H${x+w-r}A${r} ${r} 0 0 1 ${x+w} ${y+r}V${y+h-r}A${r} ${r} 0 0 1 ${x+w-r} ${y+h}H${x+r}A${r} ${r} 0 0 1 ${x} ${y+h-r}V${y+r}A${r} ${r} 0 0 1 ${x+r} ${y}Z`;
-const KEYS=[];for(let i=0;i<3;i++){const x=7.5+i*14.5;KEYS.push([x,33,11,8],[x,43,11,4])}
+const KEYS=[];for(let r=0;r<3;r++)for(let c=0;c<4;c++)KEYS.push([10.5+c*11.67,36+r*7.6,2.9]);
 const LINKS={
   oled:'https://www.waveshare.com/1.27inch-rgb-oled-module.htm',
   xiao:'https://wiki.seeedstudio.com/XIAO_ESP32C3_Getting_Started/',imu:'https://www.adafruit.com/products/4438',
@@ -138,8 +138,8 @@ const LINKS={
 };
 const LAYERS=[
  {id:'shell',name:'Front shell',z:0,
-  svg:`<path fill-rule="evenodd" fill="#2E333C" stroke="#4a5262" stroke-width=".4" d="${OUTER}${rr(10,8,36,21,5)}${KEYS.map(k=>rr(k[0],k[1],k[2],k[3],2)).join('')}"/>${[...Array(20)].map((_,i)=>`<line x1="2" x2="54" y1="${3+i*3}" y2="${3+i*3}" stroke="#000" stroke-opacity=".08" stroke-width=".25"/>`).join('')}<circle cx="6" cy="57" r=".9" fill="#7CFFB2"/>`,
-  what:'3D-printed in matte graphite PLA. Cut-outs for the screen window and the six keys, plus a light pipe for the charge LED.',
+  svg:`<path fill-rule="evenodd" fill="url(#chrome)" stroke="#f4f6f8" stroke-width=".6" d="${OUTER}${rr(10,8,36,21,5)}${KEYS.map(([x,y,r])=>`M${x+r} ${y}A${r} ${r} 0 1 0 ${x-r} ${y}A${r} ${r} 0 1 0 ${x+r} ${y}Z`).join('')}"/>${[...Array(0)].map((_,i)=>`<line x1="2" x2="54" y1="${3+i*3}" y2="${3+i*3}" stroke="#000" stroke-opacity=".08" stroke-width=".25"/>`).join('')}<defs><linearGradient id="chrome" x1="0" y1="0" x2=".3" y2="1"><stop offset="0" stop-color="#f3f5f7"/><stop offset=".55" stop-color="#c9cdd3"/><stop offset="1" stop-color="#9aa0a8"/></linearGradient></defs><rect x="23" y="61.6" width="10" height="1.6" rx=".8" fill="#1a1c20"/>`,
+  what:'Silver front shell with the screen window and twelve round key holes in a 4 × 3 grid. The USB-C charging port opens on the bottom edge.',
   bom:['shell','inserts']},
  {id:'lens',name:'Screen lens',z:-0.6,
   svg:`<path d="${rr(10,8,36,21,5)}" fill="rgba(200,235,255,.07)" stroke="rgba(220,240,255,.45)" stroke-width=".35"/><path d="M14 9.5 L24 9.5 L15 27.5 L11.5 26Z" fill="rgba(255,255,255,.06)"/>`,
@@ -149,13 +149,13 @@ const LAYERS=[
   svg:`<rect x="40.6" y="-9" width="1.8" height="10" rx=".9" fill="#8a929e"/><circle cx="41.5" cy="-11.5" r="5" fill="#FF7A70" opacity=".25" class="beadglow"/><circle cx="41.5" cy="-11.5" r="3.4" fill="#FF8F85" stroke="#ffc8c2" stroke-width=".4"/>`,
   what:'A frosted printed bead with an RGB LED inside. It glows on notifications and flashes during the snap-on boot.',
   bom:['led']},
- {id:'keys',name:'Six soft keys',z:-1.8,
-  svg:KEYS.map(k=>`<rect x="${k[0]+.35}" y="${k[1]+.35}" width="${k[2]-.7}" height="${k[3]-.7}" rx="1.8" fill="#3b424e" stroke="#59616f" stroke-width=".3"/>`).join(''),
-  what:'Printed caps over 6 mm tactile switches. Top row: pet, mode, back. Bottom row: shortcuts you pick in the app.',
+ {id:'keys',name:'Twelve keys',z:-1.8,
+  svg:KEYS.map(([x,y,r])=>`<circle cx="${x}" cy="${y}" r="${r-.25}" fill="#585c63" stroke="#3c3f45" stroke-width=".3"/><path d="M${x-1.6} ${y-1.4}A2.2 2.2 0 0 1 ${x+1.4} ${y-1.6}" stroke="#8c9198" stroke-width=".35" fill="none"/>`).join(''),
+  what:'A BlackBerry-style 4 × 3 keypad. Top row: Pet, Mood, Music, Camera. Middle: three quick replies and Find my phone. Bottom: Focus, Mute, Game, Back. Every press gets a face reaction and a tap of haptics.',
   bom:['switches','perf']},
  {id:'oled',name:'Color OLED screen',z:-3,canvas:true,
   svg:`<rect x="6.9" y="4" width="42.2" height="29" rx="1" fill="#14171d" stroke="#3a4250" stroke-width=".35"/>${[[8.6,5.7],[47.4,5.7],[8.6,31.3],[47.4,31.3]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="1.1" fill="#0b0e13" stroke="#c9a35a" stroke-width=".35"/>`).join('')}<rect x="13.6" y="7.3" width="28.8" height="22.4" rx=".6" fill="#050608"/>${[0,1,2,3,4,5,6].map(i=>`<rect x="${21.5+i*2}" y="31.2" width="1" height="1.6" fill="#c9a35a"/>`).join('')}`,
-  what:'A 1.27 inch, 128 × 96 full-color OLED. Same 128-pixel width as the original design, so every expression carries over, now with a color for each mood. True black background, so the eyes still float and black pixels use no power.',
+  what:'A 1.27 inch, 128 × 96 full-color OLED. Same 128-pixel width as the original design, so every expression carries over, now on a blue screen with black eyes, and the screen color changes with the mood. A lit background uses more power than black, so battery size matters more.',
   bom:['oled','dupont']},
  {id:'boards',name:'Brain + sensors',z:-7.7,
   svg:`<rect x="4.5" y="39" width="21" height="17.8" rx="1" fill="#1d2430" stroke="#3b4658" stroke-width=".35"/><rect x="8" y="42" width="12" height="9" rx=".5" fill="#c3c8cf"/><rect x="10" y="55.4" width="10" height="3.3" rx="1.2" fill="#b9bec6"/>${[0,1,2,3,4,5,6].map(i=>`<circle cx="5.7" cy="${40.6+i*2.54}" r=".55" fill="#c9a35a"/><circle cx="24.3" cy="${40.6+i*2.54}" r=".55" fill="#c9a35a"/>`).join('')}<rect x="27" y="39" width="25.4" height="17.8" rx="1" fill="#15181d" stroke="#3b4658" stroke-width=".35"/><rect x="37.2" y="45.4" width="5" height="5" fill="#2a2d33"/><rect x="36" y="39.6" width="5" height="2.6" fill="#e9e9e9"/><rect x="26.5" y="31" width="4.1" height="3" fill="#111" stroke="#777" stroke-width=".25"/><path d="M15.5 37.2 C15.5 38.2 14.5 38.5 14.5 39" stroke="#e84a4a" stroke-width=".5" fill="none"/><path d="M40.5 37.2 C40.5 38.2 38.5 38.5 38.5 39.6" stroke="#4a7ae8" stroke-width=".5" fill="none"/>`,
@@ -182,17 +182,17 @@ const BOM={
  imu:{n:'Adafruit LSM6DSOX IMU',q:1,why:'Feels motion: Surprised, Dizzy, Scared, Upside down and My turn all come from it.',best:'Plugs in with Qwiic (no soldering), low noise, and has tap and free-fall detection built into the chip.',p:'$11.95',h:'imu'},
  hall:{n:'Adafruit TMAG5273 hall sensor',q:1,why:'Knows when Buzz snaps onto or comes off a phone, which triggers Snap on and Bye for now.',best:'It measures the field in 3D, so it can tell the phone\'s MagSafe magnets apart from Buzz\'s own ring, runs on 3.3V and plugs in with Qwiic.',p:'See site',h:'hall'},
  qwiic:{n:'Qwiic / STEMMA QT cables, 50 mm',q:2,why:'Chain the IMU and hall sensor to the XIAO.',best:'Short cables keep the inside tidy and need no soldering.',p:'Small'},
- bat:{n:'Adafruit 150 mAh LiPo',q:1,why:'Powers Buzz off the charger.',best:'At 19.75 × 26.02 × 3.8 mm it fits between the motor and buzzer. If the color screen drains it too fast, step up to a 350 mAh cell.',p:'$5.95',h:'bat'},
+ bat:{n:'Adafruit 150 mAh LiPo',q:1,why:'Powers Buzz off the charger.',best:'At 19.75 × 26.02 × 3.8 mm it fits between the motor and buzzer. A fully lit blue screen draws more than a black one, so test battery life and step up to a 350 mAh cell if needed.',p:'$5.95',h:'bat'},
  pswitch:{n:'Mini slide power switch',q:1,why:'Fully turns Buzz off so the battery is not drained in a drawer.',best:'Cuts the battery line itself, the safest and simplest off switch.',p:'Kit'},
  motor:{n:'Adafruit vibration motor disc',q:1,why:'Haptic buzz for Angry, Scared and alerts.',best:'Only 10 mm × 2.7 mm and runs on 2 to 5V.',p:'$1.95',h:'motor'},
  driver:{n:'PN2222 transistor + 1N4148 diode + 1 kΩ resistor',q:1,why:'The motor draws 60 to 100 mA, more than a XIAO pin can supply, so the transistor switches it.',best:'Classic, cheap and reliable. The diode protects the XIAO from voltage spikes when the motor stops.',p:'Kit'},
  buzzer:{n:'Passive piezo buzzer, about 12 mm',q:1,why:'Plays the rising snap-on chirp.',best:'A passive buzzer can play any note, so the chirp sounds musical. An active one only beeps.',p:'Kit'},
  tape:{n:'Kapton tape',q:1,why:'Insulates the battery from the boards under it.',best:'Thin, heat-proof and won\'t add thickness.',p:'Small'},
  led:{n:'Diffused RGB LED, common cathode + 3 resistors',q:1,why:'Lights the antenna bead for notifications and the boot flash.',best:'Runs straight from three XIAO pins at 3.3V with no driver chip, and the diffused lens mixes colors smoothly.',p:'Kit'},
- switches:{n:'6 mm tactile switches',q:6,why:'The six soft keys: pet, mode, back and three you assign.',best:'Standard, clicky and they sit right under printed caps.',p:'Kit'},
- perf:{n:'Small perfboard',q:1,why:'Holds the six switches and the motor driver parts.',best:'Cut to fit behind the keys, easy to solder by hand.',p:'Kit'},
+ switches:{n:'6 mm tactile switches',q:12,why:'The twelve keys: Pet, Mood, Music, Camera, three quick replies, Find my phone, Focus, Mute, Game and Back.',best:'Standard, clicky and they sit right under round printed caps. Wired as a 4 × 3 matrix, 12 keys only use 7 XIAO pins.',p:'Kit'},
+ perf:{n:'Small perfboard + 12 1N4148 diodes',q:1,why:'Holds the twelve switches as a matrix, with one diode per key so pressing two keys at once never confuses it, and the motor driver parts.',best:'Cut to fit behind the keys, easy to solder by hand.',p:'Kit'},
  lens:{n:'Clear acrylic, 1 to 2 mm',q:1,why:'Protects the screen and makes the eyes look like they sit behind glass.',best:'Cheap and easy to cut to 36 × 21 mm with rounded corners, or order it laser-cut.',p:'Small'},
- shell:{n:'3D-printed front and back shell',q:1,why:'Holds everything and gives Buzz its shape.',best:'Printing lets you change the design and reprint in a few hours. Matte graphite PLA hides the print lines.',p:'Print'},
+ shell:{n:'3D-printed front and back shell, silver finish',q:1,why:'Holds everything and gives Buzz its silver look.',best:'Silk silver PLA looks metallic straight off the printer. For the mirror finish in the mock-up, sand and use chrome spray paint. Leave a slot on the bottom edge for USB-C.',p:'Print'},
  inserts:{n:'M2 heat-set inserts + M2 × 6 mm screws',q:4,why:'Lets the back shell open for fixes and testing.',best:'Brass inserts survive being opened over and over, unlike screws driven straight into plastic.',p:'Small'},
  ring:{n:'DIY magnetic ring kit',q:1,why:'Snaps Buzz onto any MagSafe phone.',best:'The kit\'s black ring has magnets inside. Glue it to the outside of the back shell.',p:'See site',h:'ring'},
  glue:{n:'E6000 or 2-part epoxy',q:1,why:'Holds the magnet ring and the lens.',best:'Both stay a little flexible or very strong, and grip PLA and acrylic.',p:'Small'}
@@ -239,7 +239,7 @@ const M={
  upsidedown:{n:'Upside down',b:both([[18,12],[18,20],[18,12]]),g:'bob',d:px([[60,50,8,2],[60,50,2,6],[66,50,2,6]])},
  off:{n:'',b:[]},snap1:{n:'',b:eye(32,[[28,8]])},snap2:{n:'',b:eye(32,OPEN)},snap3:{n:'',b:both(OPEN)}
 };
-const BLUE='#6ADCFF',SUN='#FFD166',CORAL='#FF7A70',RED='#FF5A4E',LAV='#9C8CFF',MINT='#7CFFB2';
+const BLUE='#2E6BF0',SUN='#FFD166',CORAL='#FF7A70',RED='#FF5A4E',LAV='#9C8CFF',MINT='#7CFFB2';
 const COL={happy:SUN,excited:SUN,wink:SUN,smug:SUN,spotlight:SUN,camera:SUN,love:CORAL,shy:CORAL,angry:RED,glitch:RED,lowbat:RED,sad:LAV,scared:LAV,sleepy:LAV,bored:LAV,pocket:LAV,charging:MINT,snap3:BLUE};
 const RAINBOW={music:1,dizzy:1};
 const BROWSE=Object.keys(M).filter(k=>M[k].n);
@@ -266,7 +266,7 @@ function barAnim(r,t,bl){let sy=1,oy=0;const d=r.slot*150;
 function render(now){const m=M[E.mood],t=now-E.start,dt=now-E.last;E.last=now;const out=[],bl=blinkScale(now),g=group(m.g,t);
  m.b.forEach((r,i)=>{const a=barAnim(r,t,bl);if(!a)return;let h=Math.max(1,r.h*a[0]);const y=r.y+(r.h-h)/2+a[1],cx=r.x+r.w/2;
   const x2=Math.round(64+(r.x-64)*g.s+g.dx),y2=Math.round(32+(y-32)*g.s+g.dy+g.sh*(cx-64)),w2=Math.round(r.w*g.s),h2=Math.max(1,Math.round(h*g.s));
-  out.push([x2,y2,w2,h2,g.dim?2:0,RAINBOW[E.mood]?`hsl(${(r.x*3+t*.12)%360} 90% 65%)`:0]);
+  out.push([x2,y2,w2,h2,g.dim?2:0]);
   if(m.caps){const top=y2-3;if(!E.capsReady||top<E.caps[i])E.caps[i]=top;else E.caps[i]=Math.min(top,E.caps[i]+.014*dt);out.push([x2,Math.round(E.caps[i]),w2,1,1])}});
  if(m.caps)E.capsReady=true;
  if(m.d){let dy=0,vis=true,p;
@@ -295,7 +295,7 @@ const chips=document.getElementById('chips'),detail=document.getElementById('det
 chips.innerHTML=`<button data-pick="">Overview</button>`+LAYERS.map(L=>`<button data-pick="${L.id}">${L.name}</button>`).join('');
 const priceCell=p=>p;
 function showDetail(){chips.querySelectorAll('button').forEach(b=>b.classList.toggle('on',(b.dataset.pick||null)===sel));
- if(!sel){detail.innerHTML=`<h3>Buzz prototype v0.1</h3><p>Nine layers built from parts you can order today, now with a 1.27 inch full-color OLED. Every mood has its own color. Tap <b>Explode</b>, then tap any layer to see the part, its size and where to buy it.</p><p class="hint" style="margin-top:12px">Tip: <b>Snap it on</b> plays the boot sequence, with the chirp.</p>`;return}
+ if(!sel){detail.innerHTML=`<h3>Buzz prototype v0.1</h3><p>Nine layers built from parts you can order today, now with a 1.27 inch full-color OLED. The screen is blue with black eyes, and its color changes with the mood. Tap <b>Explode</b>, then tap any layer to see the part, its size and where to buy it.</p><p class="hint" style="margin-top:12px">Tip: <b>Snap it on</b> plays the boot sequence, with the chirp.</p>`;return}
  const L=LAYERS.find(l=>l.id===sel);
  detail.innerHTML=`<h3>${L.name}</h3><p>${L.what}</p><ul class="parts">${L.bom.map(k=>{const p=BOM[k];return `<li><div><b>${p.h?`<a href="${LINKS[p.h]}">${p.n}</a>`:p.n}${p.q>1?` × ${p.q}`:''}</b><span><b style="display:inline;color:var(--ink);font-weight:500">Why:</b> ${p.why}</span><span style="display:block;margin-top:4px"><b style="display:inline;color:var(--ink);font-weight:500">Why this one:</b> ${p.best}</span></div><div class="price">${p.p}</div></li>`}).join('')}</ul>`}
 chips.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;sel=b.dataset.pick||null;if(sel&&!exploded)exploded=true;layout();showDetail()});
@@ -329,10 +329,10 @@ document.getElementById('snap').addEventListener('click',()=>{sel=null;exploded=
 /* ---------- face loop ---------- */
 function frame(now){
  if(boot!==null){const e=now-boot;const want=e<80?'off':e<200?'snap1':e<380?'snap2':e<600?'snap3':e<1800?'happy':'idle';if(E.mood!==want)setMood(want,now);if(want==='idle'){boot=null;sel_.value='idle'}}
- const rects=render(now),base=COL[E.mood]||BLUE,OY=16;ctx.fillStyle='#000';ctx.fillRect(0,0,128,96);
- for(const [x,y0,w,h,st,c] of rects){if(w<=0||h<=0)continue;const y=y0+OY;ctx.fillStyle=c||base;
+ const rects=render(now),OY=16,bg=RAINBOW[E.mood]?`hsl(${((now-E.start)/12)%360} 85% 62%)`:(COL[E.mood]||BLUE);ctx.fillStyle=bg;ctx.fillRect(0,0,128,96);
+ for(const [x,y0,w,h,st] of rects){if(w<=0||h<=0)continue;const y=y0+OY;ctx.fillStyle='#05070a';
   if(st===2&&w>=2&&h>=2){ctx.fillRect(x,y,w,1);ctx.fillRect(x,y+h-1,w,1);ctx.fillRect(x,y,1,h);ctx.fillRect(x+w-1,y,1,h)}
-  else{ctx.fillRect(x,y,w,h);if(st===0&&w>=3&&h>=3){ctx.fillStyle='#000';ctx.fillRect(x,y,1,1);ctx.fillRect(x+w-1,y,1,1);ctx.fillRect(x,y+h-1,1,1);ctx.fillRect(x+w-1,y+h-1,1,1)}}}
+  else{ctx.fillRect(x,y,w,h);if(st===0&&w>=3&&h>=3){ctx.fillStyle=bg;ctx.fillRect(x,y,1,1);ctx.fillRect(x+w-1,y,1,1);ctx.fillRect(x,y+h-1,1,1);ctx.fillRect(x+w-1,y+h-1,1,1)}}}
  requestAnimationFrame(frame)}
 setMood('idle',performance.now());layout();showDetail();fit();requestAnimationFrame(frame);
 }

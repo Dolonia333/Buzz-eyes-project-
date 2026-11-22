@@ -60,7 +60,7 @@ static float blink_scale(BzEngine* e, uint32_t now) {
 
 /* ---------- color ---------- */
 
-#define C_BLUE 0x6ADCFFu /* Signal Blue: default */
+#define C_BLUE 0x2E6BF0u /* Screen Blue: default */
 #define C_SUN 0xFFD166u /* happy moments */
 #define C_CORAL 0xFF7A70u /* love, shy */
 #define C_RED 0xFF5A4Eu /* angry, errors */
@@ -113,6 +113,13 @@ static uint32_t hue_rgb(float hue) {
     default: r = hi; g = lo; b = down; break;
     }
     return ((uint32_t)r << 16) | ((uint32_t)g << 8) | (uint32_t)b;
+}
+
+uint32_t bz_engine_screen_rgb(const BzEngine* engine, uint32_t now_ms) {
+    if(engine->mood == BZ_MOOD_MUSIC || engine->mood == BZ_MOOD_DIZZY) {
+        return hue_rgb((float)(((now_ms - engine->mood_start_ms) / 12u) % 360u));
+    }
+    return bz_mood_color(engine->mood);
 }
 
 /* ---------- public ---------- */
@@ -274,9 +281,7 @@ uint8_t bz_engine_render(BzEngine* e, uint32_t now, BzDrawRect* out, uint8_t max
     e->last_render_ms = now;
     uint8_t n = 0;
 
-    uint32_t base = bz_mood_color(e->mood);
-    bool rainbow = (e->mood == BZ_MOOD_MUSIC || e->mood == BZ_MOOD_DIZZY);
-    g_color = base;
+    g_color = BZ_EYE_RGB;
     float blink = blink_scale(e, now);
     GroupXf g = group_transform(m->group_anim, t);
 
@@ -300,8 +305,6 @@ uint8_t bz_engine_render(BzEngine* e, uint32_t now, BzDrawRect* out, uint8_t max
         int16_t xi = round_i16(x2);
         int16_t yi = round_i16(y2);
 
-        /* Rainbow moods shift hue across the bars and over time. */
-        g_color = rainbow ? hue_rgb((float)(((uint32_t)r->x * 3u + t / 8u) % 360u)) : base;
         push(out, &n, max_out, xi, yi, w2, h2, g.dim ? BZ_STYLE_FRAME : BZ_STYLE_BAR);
 
         /* Peak caps: snap up with the bar, then fall at ~14 px/s. */
@@ -319,7 +322,6 @@ uint8_t bz_engine_render(BzEngine* e, uint32_t now, BzDrawRect* out, uint8_t max
     if(m->caps) e->caps_ready = true;
 
     /* ----- pixel symbols ----- */
-    g_color = base;
     if(m->deco_count) {
         float ddy = 0.0f;
         bool visible = true;

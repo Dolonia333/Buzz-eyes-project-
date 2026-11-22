@@ -34,7 +34,8 @@ Draft v0.1. The live design canvas with the product renders, expression sheet, M
 
 | Name | Hex | Use |
 |---|---|---|
-| Signal Blue | `#6ADCFF` | Buzz's voice: the eyes, highlights, links |
+| Screen Blue | `#2E6BF0` | The device screen behind Buzz's black eyes |
+| Signal Blue | `#6ADCFF` | Brand highlights, links, the logo mark on dark |
 | Night | `#0B0E13` | The stage behind everything |
 | Graphite | `#2E333C` | Device body, cards, secondary surfaces |
 | Antenna Coral | `#FF7A70` | Antenna bead and happy moments only |
@@ -69,7 +70,7 @@ All three are free on Google Fonts.
 
 1. **Bars carry the emotion.** Height is feeling, motion is energy.
 2. **Symbols are a last resort.** Add a pixel symbol (heart, Zz, !, ?) only when the bars can't say it alone.
-3. **Always glow on black.** Never put the eyes on a busy or light background on screen.
+3. **Black eyes on a colored screen.** On the device the eyes are always black on Screen Blue (or the mood's color). Never put the eyes on a busy background.
 4. **The snap-on boot is the sound-and-light logo.** Bars light up one by one, then a Happy hello with a rising chirp and the antenna flashing. Keep it identical everywhere: the device, the app launch and video intros.
 5. **Real pixels only.** Marketing shots of the screen should use the actual 128x96 color frames from `docs/expressions/` so what people see matches the product.
 

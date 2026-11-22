@@ -2,7 +2,7 @@
 """
 Renders every Buzz expression to an animated GIF for the docs, using the real
 animation engine from flipper/buzz_eyes (compiled with your system gcc), on the
-1.27" 128x96 color panel with each mood's color.
+1.27" 128x96 color panel: each mood's screen color with black eyes.
 
     python3 tools/export_expressions.py
 
@@ -57,7 +57,7 @@ def to_image(frame):
         for x in range(W):
             i = (y * W + x) * 3
             rgb = tuple(frame[i:i + 3])
-            color = rgb if any(rgb) else GHOST
+            color = rgb  # mood's screen color, black eyes
             d.rectangle([x * SCALE, y * SCALE, x * SCALE + SCALE - 2, y * SCALE + SCALE - 2], fill=color)
     return img
 

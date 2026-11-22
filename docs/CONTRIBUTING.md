@@ -23,7 +23,7 @@ Thanks for helping with Buzz's eyes. Read [ARCHITECTURE.md](ARCHITECTURE.md) fir
 - **Bars carry the emotion.** Change heights and motion before adding symbols.
 - **Symbols are a last resort**, and stay small and in a corner.
 - **Readable at 1.27".** If it needs squinting on the Flipper, it's too detailed.
-- **Always on black.** Lit pixels on a black background, never a filled screen.
+- **Black eyes on a colored screen.** Eyes are always black; the screen color carries the mood.
 - Keep colors to the palette in ARCHITECTURE.md unless the brand changes.
 
 ## Code style

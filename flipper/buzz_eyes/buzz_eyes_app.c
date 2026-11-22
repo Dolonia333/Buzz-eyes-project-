@@ -8,7 +8,7 @@
  *   Left / Right  previous / next expression
  *   OK            replay the snap-on boot sequence
  *   Up            auto demo on/off (new expression every 4 s)
- *   Down          OLED look on/off (lit pixels on black vs. dark on orange)
+ *   Down          invert (dark eyes on the lit screen is the default, like Buzz)
  *   Back          exit
  */
 
@@ -247,7 +247,7 @@ static BuzzApp* buzz_app_alloc(void) {
 
     app->mutex = furi_mutex_alloc(FuriMutexTypeNormal);
     app->input_queue = furi_message_queue_alloc(8, sizeof(InputEvent));
-    app->oled_look = true;
+    app->oled_look = false; /* dark eyes on a lit screen, like Buzz's blue screen */
 
     uint32_t now = furi_get_tick();
     bz_engine_init(&app->engine, now);
@@ -325,7 +325,7 @@ int32_t buzz_eyes_app(void* p) {
             case InputKeyDown:
                 if(event.type == InputTypeShort) {
                     app->oled_look = !app->oled_look;
-                    show_label(app, app->oled_look ? "OLED look: on" : "OLED look: off", now);
+                    show_label(app, app->oled_look ? "Inverted" : "Buzz look", now);
                 }
                 break;
             case InputKeyBack:

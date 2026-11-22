@@ -6,7 +6,8 @@
 - **Signal eyes**: the chosen eye style, three vertical bars per eye
 - 24 core expressions and 8 MagSafe moments, plus the snap-on boot sequence
 - A portable C engine that runs on the Flipper Zero now and the ESP32 next
-- Color for the product screen (1.27" 128x96 SSD1351 OLED), with a color per mood
+- Color for the product screen (1.27" 128x96 SSD1351 OLED): blue screen with black eyes, screen color per mood
+- The 12-key BlackBerry-style keypad and its interactions
 - Previews generated from the real engine (`docs/expressions/`) so docs always match the device
 - The interactive prototype teardown and parts list (`prototype/take-buzz-apart.html`)
 - The brand kit (`docs/BRAND.md`, `docs/brand/`)
@@ -33,4 +34,4 @@
 
 - Engine stays plain C (C99), no dynamic memory, no platform headers
 - Faces are drawn on the 128x64 grid so they work on both the Flipper and the color panel
-- Keep the brand rules: bars carry the emotion, symbols are a last resort, always glow on black
+- Keep the brand rules: bars carry the emotion, symbols are a last resort, black eyes on a colored screen

@@ -30,7 +30,7 @@ Everything else (`tools/`, `docs/expressions/`, `prototype/`) is built from the 
 ### Coordinate system and screens
 
 - Faces are drawn on a **128x64 grid**. Left eye bars start at x=32, right eye at x=80. Bars are 4 px wide with a 2 px gap, so the eyes sit 48 px apart.
-- **Flipper Zero:** 128x64 monochrome, drawn as-is. `rgb` is ignored.
+- **Flipper Zero:** 128x64 monochrome, dark eyes on the lit screen by default to match Buzz. Color is ignored.
 - **Product screen:** 1.27" 128x96 full-color OLED (SSD1351). Add `BZ_FACE_OFFSET_Y` (16) to every y so the face sits in the middle, with room above and below for symbols.
 
 ### Animation layers
@@ -49,11 +49,11 @@ Each expression combines three kinds of motion:
 
 ### Color
 
-`bz_mood_color(mood)` gives each mood its color, copied onto every rectangle's `rgb`:
+Buzz's screen is a colored background with **black eyes**. `bz_mood_color(mood)` is the mood's screen color, and `bz_engine_screen_rgb(engine, now)` gives the background to fill right now (including the moving rainbow). Every rectangle's `rgb` is `BZ_EYE_RGB` (black).
 
 | Color | Hex | Moods |
 |---|---|---|
-| Signal Blue | `#6ADCFF` | default (idle, listening, thinking, alert, snap on...) |
+| Screen Blue | `#2E6BF0` | default (idle, listening, thinking, alert, snap on...) |
 | Sun | `#FFD166` | happy, excited, wink, smug, my turn, say cheese |
 | Coral | `#FF7A70` | love, shy |
 | Red | `#FF5A4E` | angry, glitch, low battery |
@@ -77,7 +77,7 @@ The app steps through static frames `OFF`, `SNAP1`, `SNAP2`, `SNAP3`, then `HAPP
 
 1. Copy `buzz_faces.*` and `buzz_engine.*` unchanged.
 2. Call `bz_engine_render()` each frame with `millis()`.
-3. Draw each rectangle: `BAR` as a filled box with 1 px rounded corners, `BOX` filled, `FRAME` outlined, at `y + BZ_FACE_OFFSET_Y` in its `rgb`.
+3. Fill the screen with `bz_engine_screen_rgb()`, then draw each rectangle in black: `BAR` as a filled box with 1 px rounded corners, `BOX` filled, `FRAME` outlined, at `y + BZ_FACE_OFFSET_Y`.
 4. Map sensors to `bz_engine_set_mood()` (IMU, hall sensor, phone events over Bluetooth).
 
 ## Browser prototype (parametric eyes)

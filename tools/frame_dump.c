@@ -3,7 +3,8 @@
  * Uses the exact same engine as the Flipper app.
  *
  * Usage: frame_dump <mood_index> <duration_ms> <fps>
- * Output: frames of 128*96*3 bytes (RGB, the color panel) on stdout.
+ * Output: frames of 128*96*3 bytes (RGB, the color panel) on stdout:
+ * the mood's screen color with black eyes.
  * Run with "list" to print "index<TAB>name" for every expression.
  */
 #include <stdio.h>
@@ -55,7 +56,13 @@ int main(int argc, char** argv) {
     BzDrawRect rects[BZ_MAX_DRAW];
     for(int t = 0; t < duration; t += step) {
         uint8_t n = bz_engine_render(&engine, (uint32_t)t, rects, BZ_MAX_DRAW);
-        memset(fb, 0, sizeof(fb));
+        uint32_t bg = bz_engine_screen_rgb(&engine, (uint32_t)t);
+        for(int y = 0; y < BZ_PANEL_H; y++)
+            for(int x = 0; x < BZ_PANEL_W; x++) {
+                fb[y][x][0] = (unsigned char)(bg >> 16);
+                fb[y][x][1] = (unsigned char)(bg >> 8);
+                fb[y][x][2] = (unsigned char)bg;
+            }
         for(uint8_t i = 0; i < n; i++) plot(&rects[i]);
         fwrite(fb, 1, sizeof(fb), stdout);
     }

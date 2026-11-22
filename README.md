@@ -2,7 +2,7 @@
   <img src="docs/brand/hero.gif" alt="Buzz, a MagSafe OLED robot, booting up and vibing to music" width="100%">
 </p>
 
-<p align="center"><img src="https://img.shields.io/badge/screen-128%C3%9764%20OLED-6ADCFF?style=flat-square&labelColor=0B0E13" alt="screen 128%C3%9764%20OLED"> <img src="https://img.shields.io/badge/attach-MagSafe-6ADCFF?style=flat-square&labelColor=0B0E13" alt="attach MagSafe"> <img src="https://img.shields.io/badge/eyes-32%20expressions-6ADCFF?style=flat-square&labelColor=0B0E13" alt="eyes 32%20expressions"> <img src="https://img.shields.io/badge/prototype-Flipper%20Zero-FF7A70?style=flat-square&labelColor=0B0E13" alt="prototype Flipper%20Zero"> <img src="https://img.shields.io/badge/engine-portable%20C-7CFFB2?style=flat-square&labelColor=0B0E13" alt="engine portable%20C"></p>
+<p align="center"><img src="https://img.shields.io/badge/screen-1.27%22%20color%20OLED-2E6BF0?style=flat-square&labelColor=0B0E13" alt="screen 1.27 inch color OLED"> <img src="https://img.shields.io/badge/attach-MagSafe-6ADCFF?style=flat-square&labelColor=0B0E13" alt="attach MagSafe"> <img src="https://img.shields.io/badge/eyes-32%20expressions-6ADCFF?style=flat-square&labelColor=0B0E13" alt="eyes 32%20expressions"> <img src="https://img.shields.io/badge/prototype-Flipper%20Zero-FF7A70?style=flat-square&labelColor=0B0E13" alt="prototype Flipper%20Zero"> <img src="https://img.shields.io/badge/engine-portable%20C-7CFFB2?style=flat-square&labelColor=0B0E13" alt="engine portable%20C"></p>
 
 <p align="center">
   <a href="#meet-buzz">Meet Buzz</a> ·
@@ -33,7 +33,7 @@ Buzz's signature look. Each eye is **three vertical bars**, like your phone's si
 - **Motion is energy.** Bars bounce, hop, tremble or drift depending on the mood.
 - **Symbols are a last resort.** A tiny pixel heart, Zz, ! or ? shows up only when the bars can't say it alone.
 
-Every preview here is rendered by the real animation engine on Buzz's 1.27" 128x96 full-color OLED, so what you see is exactly what the device shows. Each mood has its own color: Signal Blue by default, sunny yellow for happy moments, coral for love, red for anger and errors, lavender for quiet and sad moods, mint for charging, and a moving rainbow for Vibing and Dizzy.
+Every preview here is rendered by the real animation engine on Buzz's 1.27" 128x96 full-color OLED, so what you see is exactly what the device shows. Buzz's screen is **blue with black eyes**, and the screen color changes with the mood: Screen Blue by default, sunny yellow for happy moments, coral for love, red for anger and errors, lavender for quiet and sad moods, mint for charging, and a moving rainbow for Vibing and Dizzy.
 
 ### All 24 expressions
 
@@ -81,10 +81,31 @@ Prototype v0.1. These are the parts we're designing around, still to be confirme
 | **Brain** | ESP32-C3 with Bluetooth LE |
 | **Sensors** | 6-axis IMU (motion, tilt, free fall) and a hall-effect sensor (MagSafe attach and detach) |
 | **Feedback** | RGB LED in the antenna bead, piezo buzzer, vibration motor |
-| **Controls** | Six soft keys: pet, mode, back, plus three you assign in the app |
+| **Controls** | Twelve round keys in a 4 × 3 grid, BlackBerry style (see [The keypad](#the-keypad)) |
+| **Body** | Silver shell, USB-C charging port on the bottom edge |
 | **Attach** | MagSafe-compatible magnet ring with an alignment magnet |
 | **Power** | Small LiPo cell, USB-C charging |
 | **Size** | About 56 x 63 x 9 mm (target) |
+
+## The keypad
+
+Twelve round keys in a 4 × 3 grid, BlackBerry style. Every press gets a reaction: Buzz's face responds, the vibration motor gives a short tap, and the action happens on the phone over Bluetooth.
+
+| | | | |
+|---|---|---|---|
+| **Pet** · Buzz goes Happy, hold for Love | **Mood** · cycle Buzz's face | **Music** · play/pause, hold to skip | **Camera** · opens the camera, Buzz plays Say cheese |
+| **Reply 1** · send a saved quick reply | **Reply 2** | **Reply 3** | **Find my phone** · rings the phone |
+| **Focus** · toggles Do Not Disturb, Buzz goes Focused | **Mute** · silences Buzz's sounds | **Game** · mini games played with the keys | **Back** · cancel, hold for settings |
+
+Ideas for making the keys feel alive:
+
+- **Instant feedback.** Each key gets its own face reaction within one frame, plus a haptic tap.
+- **Short and long press.** Every key has a second action on hold, so 12 keys cover 24 actions.
+- **Assignable.** The companion app lets you choose what Reply 1 to 3, Game and Mood do.
+- **Mini games.** Simon Says (Buzz flashes a pattern on the screen, you repeat it on the keys), Pet streaks, a reaction-time game.
+- **Number pad mode.** Hold Back + Mood to type numbers, for things like a quick timer.
+
+The keys are wired as a 4 × 3 matrix so all twelve use only seven pins on the XIAO.
 
 ## Take Buzz apart
 
@@ -105,7 +126,7 @@ ufbt launch        # builds, installs and opens it on a Flipper plugged in over 
 | Left / Right | Previous / next expression |
 | OK | Replay the snap-on boot |
 | Up | Auto demo on/off |
-| Down | OLED look on/off |
+| Down | Invert the screen |
 | Back | Exit |
 
 Full details are in [flipper/buzz_eyes/README.md](flipper/buzz_eyes/README.md).
@@ -141,7 +162,7 @@ To try it, open `buzz_eyes_demo.html` in a browser and click the mood buttons. T
 |---|---|
 | **Logo** | The Signal mark (two three-bar eyes) with a lowercase **buzz** wordmark. [Dark](docs/brand/logo-dark.png) and [light](docs/brand/logo-light.png) versions |
 | **App icons** | [Night](docs/brand/icon-night.png) (default), [light](docs/brand/icon-light.png) (print and packaging), [happy coral](docs/brand/icon-coral.png) (social and merch) |
-| **Colors** | Signal Blue `#6ADCFF` · Night `#0B0E13` · Graphite `#2E333C` · Antenna Coral `#FF7A70` · Charge Mint `#7CFFB2` · Cloud `#E8ECF1` |
+| **Colors** | Screen Blue `#2E6BF0` (the device screen) · Signal Blue `#6ADCFF` · Night `#0B0E13` · Graphite `#2E333C` · Antenna Coral `#FF7A70` · Charge Mint `#7CFFB2` · Cloud `#E8ECF1` |
 | **Type** | Space Grotesk for headlines, Inter for body text, JetBrains Mono for tech labels |
 | **Personality** | Playful, responsive, loyal |
 | **Taglines** | *Always on your wavelength.* · *Snap it on. Feel the signal.* · *Your phone finally has a face.* |

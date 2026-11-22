@@ -37,7 +37,7 @@ typedef struct {
     int16_t w;
     int16_t h;
     uint8_t style; /* BzStyle */
-    uint32_t rgb; /* 0xRRGGBB for color panels; monochrome screens ignore it */
+    uint32_t rgb; /* 0xRRGGBB eye color (black) for color panels; monochrome screens ignore it */
 } BzDrawRect;
 
 typedef struct {
@@ -62,8 +62,13 @@ void bz_engine_init(BzEngine* engine, uint32_t now_ms);
 /* Switch expression. Animations restart from the beginning. */
 void bz_engine_set_mood(BzEngine* engine, uint8_t mood, uint32_t now_ms);
 
-/* The mood's main color as 0xRRGGBB. */
+/* Buzz's look: a colored screen with black eyes.
+ * bz_mood_color() is the mood's screen (background) color as 0xRRGGBB.
+ * bz_engine_screen_rgb() is the background to fill right now, which also
+ * handles the moving rainbow for Vibing and Dizzy. Eyes are BZ_EYE_RGB. */
+#define BZ_EYE_RGB 0x000000u
 uint32_t bz_mood_color(uint8_t mood);
+uint32_t bz_engine_screen_rgb(const BzEngine* engine, uint32_t now_ms);
 
 /* Fill `out` with what to draw right now. Returns the number of rects. */
 uint8_t bz_engine_render(BzEngine* engine, uint32_t now_ms, BzDrawRect* out, uint8_t max_out);

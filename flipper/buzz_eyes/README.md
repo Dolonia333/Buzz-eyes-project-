@@ -1,6 +1,6 @@
 # Buzz Eyes for Flipper Zero
 
-A Flipper Zero app that plays Buzz's **Signal eyes** on the Flipper's 128x64 screen. Buzz's face is drawn on a 128x64 grid, so every face maps pixel for pixel. The real device uses a 1.27" 128x96 full-color OLED (SSD1351): the face sits in the middle 64 rows (`BZ_FACE_OFFSET_Y`) and each mood has a color (`bz_mood_color`, plus `rgb` on every rectangle). The Flipper is monochrome, so it ignores the color.
+A Flipper Zero app that plays Buzz's **Signal eyes** on the Flipper's 128x64 screen. Buzz's face is drawn on a 128x64 grid, so every face maps pixel for pixel. The real device uses a 1.27" 128x96 full-color OLED (SSD1351): the face sits in the middle 64 rows (`BZ_FACE_OFFSET_Y`) and the screen is blue with black eyes, changing color with the mood (`bz_engine_screen_rgb`). The Flipper is monochrome, so it shows dark eyes on its lit screen.
 
 Each eye is three vertical bars. Emotion comes from the bar heights, and a small pixel symbol only shows up when the bars can't say it alone.
 
@@ -20,7 +20,7 @@ Each eye is three vertical bars. Emotion comes from the bar heights, and a small
 | Left / Right | Previous / next expression |
 | OK | Replay the snap-on boot |
 | Up | Auto demo on/off (new expression every 4 s) |
-| Down | OLED look on/off (lit pixels on black vs. dark pixels on orange) |
+| Down | Invert the screen (dark eyes on the lit screen is the default, like Buzz) |
 | Back | Exit |
 
 ## Build and install
@@ -60,11 +60,14 @@ for (uint8_t i = 0; i < n; i++) {
 u8g2.sendBuffer();
 ```
 
-For the color SSD1351 panel (for example with Adafruit_SSD1351 or TFT_eSPI), convert `r->rgb` to RGB565 and add the offset:
+For the color SSD1351 panel (for example with Adafruit_SSD1351 or TFT_eSPI), fill the screen color, then draw the eyes in black at the offset:
 
 ```c
-uint16_t c565 = ((r->rgb >> 8) & 0xF800) | ((r->rgb >> 5) & 0x07E0) | ((r->rgb >> 3) & 0x001F);
-display.fillRect(r->x, r->y + BZ_FACE_OFFSET_Y, r->w, r->h, c565);
+uint32_t bg = bz_engine_screen_rgb(&engine, millis());
+uint16_t bg565 = ((bg >> 8) & 0xF800) | ((bg >> 5) & 0x07E0) | ((bg >> 3) & 0x001F);
+display.fillScreen(bg565);
+for (uint8_t i = 0; i < n; i++)
+    display.fillRect(rects[i].x, rects[i].y + BZ_FACE_OFFSET_Y, rects[i].w, rects[i].h, 0x0000);
 ```
 
 (Clip negative coordinates first, like `draw_rect` in `buzz_eyes_app.c` does.)
