@@ -58,6 +58,63 @@ static float blink_scale(BzEngine* e, uint32_t now) {
     return 1.0f;
 }
 
+/* ---------- color ---------- */
+
+#define C_BLUE 0x6ADCFFu /* Signal Blue: default */
+#define C_SUN 0xFFD166u /* happy moments */
+#define C_CORAL 0xFF7A70u /* love, shy */
+#define C_RED 0xFF5A4Eu /* angry, errors */
+#define C_LAV 0x9C8CFFu /* sad, sleepy, quiet */
+#define C_MINT 0x7CFFB2u /* charging */
+
+uint32_t bz_mood_color(uint8_t mood) {
+    switch(mood) {
+    case BZ_MOOD_HAPPY:
+    case BZ_MOOD_EXCITED:
+    case BZ_MOOD_WINK:
+    case BZ_MOOD_SMUG:
+    case BZ_MOOD_SPOTLIGHT:
+    case BZ_MOOD_CAMERA:
+        return C_SUN;
+    case BZ_MOOD_LOVE:
+    case BZ_MOOD_SHY:
+        return C_CORAL;
+    case BZ_MOOD_ANGRY:
+    case BZ_MOOD_GLITCH:
+    case BZ_MOOD_LOWBAT:
+        return C_RED;
+    case BZ_MOOD_SAD:
+    case BZ_MOOD_SCARED:
+    case BZ_MOOD_SLEEPY:
+    case BZ_MOOD_BORED:
+    case BZ_MOOD_POCKET:
+        return C_LAV;
+    case BZ_MOOD_CHARGING:
+        return C_MINT;
+    default:
+        return C_BLUE;
+    }
+}
+
+/* Hue (0-360) at full saturation, 65% value-ish, for the rainbow moods. */
+static uint32_t hue_rgb(float hue) {
+    float h = hue / 60.0f;
+    int i = (int)h;
+    float f = h - (float)i;
+    float hi = 255.0f, lo = 90.0f;
+    float up = lo + (hi - lo) * f, down = hi - (hi - lo) * f;
+    float r, g, b;
+    switch(i % 6) {
+    case 0: r = hi; g = up; b = lo; break;
+    case 1: r = down; g = hi; b = lo; break;
+    case 2: r = lo; g = hi; b = up; break;
+    case 3: r = lo; g = down; b = hi; break;
+    case 4: r = up; g = lo; b = hi; break;
+    default: r = hi; g = lo; b = down; break;
+    }
+    return ((uint32_t)r << 16) | ((uint32_t)g << 8) | (uint32_t)b;
+}
+
 /* ---------- public ---------- */
 
 void bz_engine_init(BzEngine* engine, uint32_t now_ms) {
@@ -196,6 +253,8 @@ static bool bar_anim(BzEngine* e, const BzRect* r, uint32_t t, float blink, floa
     return true;
 }
 
+static uint32_t g_color;
+
 static bool push(BzDrawRect* out, uint8_t* n, uint8_t max_out, int16_t x, int16_t y, int16_t w, int16_t h, uint8_t style) {
     if(*n >= max_out || w <= 0 || h <= 0) return false;
     out[*n].x = x;
@@ -203,6 +262,7 @@ static bool push(BzDrawRect* out, uint8_t* n, uint8_t max_out, int16_t x, int16_
     out[*n].w = w;
     out[*n].h = h;
     out[*n].style = style;
+    out[*n].rgb = g_color;
     (*n)++;
     return true;
 }
@@ -214,6 +274,9 @@ uint8_t bz_engine_render(BzEngine* e, uint32_t now, BzDrawRect* out, uint8_t max
     e->last_render_ms = now;
     uint8_t n = 0;
 
+    uint32_t base = bz_mood_color(e->mood);
+    bool rainbow = (e->mood == BZ_MOOD_MUSIC || e->mood == BZ_MOOD_DIZZY);
+    g_color = base;
     float blink = blink_scale(e, now);
     GroupXf g = group_transform(m->group_anim, t);
 
@@ -237,6 +300,8 @@ uint8_t bz_engine_render(BzEngine* e, uint32_t now, BzDrawRect* out, uint8_t max
         int16_t xi = round_i16(x2);
         int16_t yi = round_i16(y2);
 
+        /* Rainbow moods shift hue across the bars and over time. */
+        g_color = rainbow ? hue_rgb((float)(((uint32_t)r->x * 3u + t / 8u) % 360u)) : base;
         push(out, &n, max_out, xi, yi, w2, h2, g.dim ? BZ_STYLE_FRAME : BZ_STYLE_BAR);
 
         /* Peak caps: snap up with the bar, then fall at ~14 px/s. */
@@ -254,6 +319,7 @@ uint8_t bz_engine_render(BzEngine* e, uint32_t now, BzDrawRect* out, uint8_t max
     if(m->caps) e->caps_ready = true;
 
     /* ----- pixel symbols ----- */
+    g_color = base;
     if(m->deco_count) {
         float ddy = 0.0f;
         bool visible = true;

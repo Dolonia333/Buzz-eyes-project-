@@ -71,7 +71,7 @@ All three are free on Google Fonts.
 2. **Symbols are a last resort.** Add a pixel symbol (heart, Zz, !, ?) only when the bars can't say it alone.
 3. **Always glow on black.** Never put the eyes on a busy or light background on screen.
 4. **The snap-on boot is the sound-and-light logo.** Bars light up one by one, then a Happy hello with a rising chirp and the antenna flashing. Keep it identical everywhere: the device, the app launch and video intros.
-5. **Real pixels only.** Marketing shots of the screen should use the actual 128x64 frames from `docs/expressions/` so what people see matches the product.
+5. **Real pixels only.** Marketing shots of the screen should use the actual 128x96 color frames from `docs/expressions/` so what people see matches the product.
 
 ## Marketing moments to film
 

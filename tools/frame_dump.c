@@ -3,7 +3,7 @@
  * Uses the exact same engine as the Flipper app.
  *
  * Usage: frame_dump <mood_index> <duration_ms> <fps>
- * Output: frames of 128*64 bytes (0 = off, 1 = lit) on stdout.
+ * Output: frames of 128*96*3 bytes (RGB, the color panel) on stdout.
  * Run with "list" to print "index<TAB>name" for every expression.
  */
 #include <stdio.h>
@@ -12,12 +12,13 @@
 
 #include "buzz_engine.h"
 
-static unsigned char fb[BZ_SCREEN_H][BZ_SCREEN_W];
+static unsigned char fb[BZ_PANEL_H][BZ_PANEL_W][3];
 
 static void plot(const BzDrawRect* r) {
     for(int y = r->y; y < r->y + r->h; y++) {
         for(int x = r->x; x < r->x + r->w; x++) {
-            if(x < 0 || x >= BZ_SCREEN_W || y < 0 || y >= BZ_SCREEN_H) continue;
+            int py = y + BZ_FACE_OFFSET_Y;
+            if(x < 0 || x >= BZ_PANEL_W || py < 0 || py >= BZ_PANEL_H) continue;
             int edge = y == r->y || y == r->y + r->h - 1 || x == r->x || x == r->x + r->w - 1;
             if(r->style == BZ_STYLE_FRAME && !edge) continue;
             /* Round the corners of eye bars the same way canvas_draw_rbox(radius 1) does. */
@@ -26,7 +27,9 @@ static void plot(const BzDrawRect* r) {
                 int cy = (y == r->y || y == r->y + r->h - 1);
                 if(cx && cy) continue;
             }
-            fb[y][x] = 1;
+            fb[py][x][0] = (unsigned char)(r->rgb >> 16);
+            fb[py][x][1] = (unsigned char)(r->rgb >> 8);
+            fb[py][x][2] = (unsigned char)r->rgb;
         }
     }
 }

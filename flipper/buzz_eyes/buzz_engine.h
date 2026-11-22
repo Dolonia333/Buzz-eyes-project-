@@ -16,6 +16,13 @@
 
 #define BZ_SCREEN_W 128
 #define BZ_SCREEN_H 64
+
+/* The color panel (1.27" SSD1351) is 128x96. The face is drawn in the
+ * 128x64 grid above; add BZ_FACE_OFFSET_Y to every y when drawing on it so
+ * the face sits in the middle with room for symbols above and below. */
+#define BZ_PANEL_W 128
+#define BZ_PANEL_H 96
+#define BZ_FACE_OFFSET_Y 16
 #define BZ_MAX_DRAW 48
 
 typedef enum {
@@ -30,6 +37,7 @@ typedef struct {
     int16_t w;
     int16_t h;
     uint8_t style; /* BzStyle */
+    uint32_t rgb; /* 0xRRGGBB for color panels; monochrome screens ignore it */
 } BzDrawRect;
 
 typedef struct {
@@ -53,6 +61,9 @@ void bz_engine_init(BzEngine* engine, uint32_t now_ms);
 
 /* Switch expression. Animations restart from the beginning. */
 void bz_engine_set_mood(BzEngine* engine, uint8_t mood, uint32_t now_ms);
+
+/* The mood's main color as 0xRRGGBB. */
+uint32_t bz_mood_color(uint8_t mood);
 
 /* Fill `out` with what to draw right now. Returns the number of rects. */
 uint8_t bz_engine_render(BzEngine* engine, uint32_t now_ms, BzDrawRect* out, uint8_t max_out);

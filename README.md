@@ -33,7 +33,7 @@ Buzz's signature look. Each eye is **three vertical bars**, like your phone's si
 - **Motion is energy.** Bars bounce, hop, tremble or drift depending on the mood.
 - **Symbols are a last resort.** A tiny pixel heart, Zz, ! or ? shows up only when the bars can't say it alone.
 
-Every preview here is rendered by the real animation engine at the actual 128x64 resolution of Buzz's 1.3" OLED, so what you see is exactly what the device shows.
+Every preview here is rendered by the real animation engine on Buzz's 1.27" 128x96 full-color OLED, so what you see is exactly what the device shows. Each mood has its own color: Signal Blue by default, sunny yellow for happy moments, coral for love, red for anger and errors, lavender for quiet and sad moods, mint for charging, and a moving rainbow for Vibing and Dizzy.
 
 ### All 24 expressions
 
@@ -77,7 +77,7 @@ Prototype v0.1. These are the parts we're designing around, still to be confirme
 
 | | |
 |---|---|
-| **Screen** | 1.3" monochrome OLED, 128x64, SH1106 driver |
+| **Screen** | 1.27" full-color OLED, 128x96, 262K colors, SSD1351 driver ([Waveshare](https://www.waveshare.com/1.27inch-rgb-oled-module.htm)) |
 | **Brain** | ESP32-C3 with Bluetooth LE |
 | **Sensors** | 6-axis IMU (motion, tilt, free fall) and a hall-effect sensor (MagSafe attach and detach) |
 | **Feedback** | RGB LED in the antenna bead, piezo buzzer, vibration motor |
@@ -88,7 +88,7 @@ Prototype v0.1. These are the parts we're designing around, still to be confirme
 
 ## Try it on a Flipper Zero
 
-The Flipper Zero has the exact same 128x64 screen resolution, so it's the fastest way to see Buzz's eyes on real hardware. The app plays all 32 expressions plus the snap-on boot, flashes the LED like the antenna bead and chirps on startup.
+The Flipper Zero's 128x64 screen is the same width as Buzz's face, so it's the fastest way to see the eyes move on real hardware. It's monochrome, so it shows the shapes and timing; the color shows up on the real panel and in the previews above. The app plays all 32 expressions plus the snap-on boot, flashes the LED like the antenna bead and chirps on startup.
 
 ```bash
 pip install ufbt

@@ -1,6 +1,6 @@
 # Buzz Eyes for Flipper Zero
 
-A Flipper Zero app that plays Buzz's **Signal eyes** on the Flipper's 128x64 screen. That's the same resolution as the 1.3" SH1106 OLED planned for the real device, so every face here maps to the hardware pixel for pixel.
+A Flipper Zero app that plays Buzz's **Signal eyes** on the Flipper's 128x64 screen. Buzz's face is drawn on a 128x64 grid, so every face maps pixel for pixel. The real device uses a 1.27" 128x96 full-color OLED (SSD1351): the face sits in the middle 64 rows (`BZ_FACE_OFFSET_Y`) and each mood has a color (`bz_mood_color`, plus `rgb` on every rectangle). The Flipper is monochrome, so it ignores the color.
 
 Each eye is three vertical bars. Emotion comes from the bar heights, and a small pixel symbol only shows up when the bars can't say it alone.
 
@@ -58,6 +58,13 @@ for (uint8_t i = 0; i < n; i++) {
     else u8g2.drawBox(r->x, r->y, r->w, r->h);
 }
 u8g2.sendBuffer();
+```
+
+For the color SSD1351 panel (for example with Adafruit_SSD1351 or TFT_eSPI), convert `r->rgb` to RGB565 and add the offset:
+
+```c
+uint16_t c565 = ((r->rgb >> 8) & 0xF800) | ((r->rgb >> 5) & 0x07E0) | ((r->rgb >> 3) & 0x001F);
+display.fillRect(r->x, r->y + BZ_FACE_OFFSET_Y, r->w, r->h, c565);
 ```
 
 (Clip negative coordinates first, like `draw_rect` in `buzz_eyes_app.c` does.)

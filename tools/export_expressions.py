@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
 Renders every Buzz expression to an animated GIF for the docs, using the real
-animation engine from flipper/buzz_eyes (compiled with your system gcc).
+animation engine from flipper/buzz_eyes (compiled with your system gcc), on the
+1.27" 128x96 color panel with each mood's color.
 
     python3 tools/export_expressions.py
 
@@ -19,11 +20,10 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ENGINE = os.path.join(ROOT, "flipper", "buzz_eyes")
 OUT = os.path.join(ROOT, "docs", "expressions")
 
-W, H = 128, 64
+W, H = 128, 96  # 1.27" SSD1351 color panel
 SCALE = 3  # each OLED pixel becomes a 3x3 cell with a 1 px gap, like a real panel
 FPS = 20
 BG = (5, 7, 10)
-LIT = (106, 220, 255)  # Signal Blue
 GHOST = (13, 20, 27)  # faint unlit pixel grid
 
 # Longer clips for faces whose motion takes longer to show.
@@ -54,9 +54,10 @@ def to_image(frame):
     img = Image.new("RGB", (W * SCALE, H * SCALE), BG)
     d = ImageDraw.Draw(img)
     for y in range(H):
-        row = frame[y * W:(y + 1) * W]
         for x in range(W):
-            color = LIT if row[x] else GHOST
+            i = (y * W + x) * 3
+            rgb = tuple(frame[i:i + 3])
+            color = rgb if any(rgb) else GHOST
             d.rectangle([x * SCALE, y * SCALE, x * SCALE + SCALE - 2, y * SCALE + SCALE - 2], fill=color)
     return img
 
@@ -78,7 +79,7 @@ def main():
         for i, name in browsable:
             ms = DURATION_MS.get(slug(name), DEFAULT_MS)
             raw = subprocess.run([exe, str(i), str(ms), str(FPS)], capture_output=True, check=True).stdout
-            frames = [raw[k:k + W * H] for k in range(0, len(raw), W * H)]
+            frames = [raw[k:k + W * H * 3] for k in range(0, len(raw), W * H * 3)]
             images = [to_image(f) for f in frames]
             path = os.path.join(OUT, slug(name) + ".gif")
             images[0].save(path, save_all=True, append_images=images[1:], duration=1000 // FPS, loop=0, optimize=True)
@@ -91,7 +92,7 @@ def main():
         boot = []
         for name, ms in [("Off", 500), ("Snap 1", 150), ("Snap 2", 200), ("Snap 3", 250), ("Happy", 1500)]:
             raw = subprocess.run([exe, str(index[name]), str(ms), str(FPS)], capture_output=True, check=True).stdout
-            boot += [to_image(raw[k:k + W * H]) for k in range(0, len(raw), W * H)]
+            boot += [to_image(raw[k:k + W * H * 3]) for k in range(0, len(raw), W * H * 3)]
         boot_path = os.path.join(OUT, "boot.gif")
         boot[0].save(boot_path, save_all=True, append_images=boot[1:], duration=1000 // FPS, loop=0, optimize=True)
         print("wrote", os.path.relpath(boot_path, ROOT))
