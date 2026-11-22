@@ -44,12 +44,18 @@ No build step. No dependencies.
 .
 ├── README.md                 ← you are here
 ├── buzz_eyes_demo.html       ← live prototype (source of truth)
+├── flipper/
+│   └── buzz_eyes/            ← Flipper Zero app (Signal eyes)
 └── docs/
     ├── SCOPE.md              ← what is in / out of scope
     ├── ROADMAP.md            ← phases and next work
     ├── ARCHITECTURE.md       ← how the system is structured
     └── CONTRIBUTING.md       ← how to add moods or improve shapes
 ```
+
+## Flipper Zero prototype
+
+`flipper/buzz_eyes/` is a Flipper Zero app that plays the **Signal eyes** direction (three vertical bars per eye) on the Flipper's 128x64 screen, with 24 expressions, 8 MagSafe moments and the snap-on boot sequence. Its animation engine is plain C, so it can be reused on the ESP32. See [flipper/buzz_eyes/README.md](flipper/buzz_eyes/README.md) to build and install it.
 
 ## Contributing
 

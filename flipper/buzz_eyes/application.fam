@@ -1,0 +1,11 @@
+App(
+    appid="buzz_eyes",
+    name="Buzz Eyes",
+    apptype=FlipperAppType.EXTERNAL,
+    entry_point="buzz_eyes_app",
+    requires=["gui", "notification"],
+    stack_size=2 * 1024,
+    fap_category="Media",
+    fap_version="0.1",
+    fap_description="Signal-eye expressions for Buzz, the MagSafe OLED robot",
+)
