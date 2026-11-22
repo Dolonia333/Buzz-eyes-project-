@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Take Buzz apart</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap">
+<style>
+/* VOICE: playful product lab, precise like a teardown, Buzz's own night palette.
+   IDEA: an exploded teardown of the device on a dark bench.
+   PICTURE: the 3D Buzz itself, drag to turn, explode to see every layer, live eyes on its OLED.
+   COLOUR and TYPE: Night ground, Signal Blue lead, Antenna Coral accent; Space Grotesk + Inter.
+   LAYOUT: model large on the left, part details on the right, parts list and thickness below. */
+:root{color-scheme:dark;--bg:#0B0E13;--panel:#11151C;--line:#222936;--ink:#E8ECF1;--muted:#A7B1BE;--dim:#8A94A3;--blue:#6ADCFF;--coral:#FF7A70;--mint:#7CFFB2;--S:6px}
+:root[data-theme=light],:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Inter,system-ui,sans-serif;overflow-x:clip}
+h1,h2,h3{font-family:"Space Grotesk",Inter,sans-serif;margin:0;line-height:1.05;text-wrap:balance}
+h1{font-size:clamp(32px,5vw,48px);font-weight:700}
+h2{font-size:26px;font-weight:700}
+a{color:var(--blue)}
+.band{padding:clamp(24px,4vw,56px) max(5vw,16px);max-width:1320px;margin:0 auto}
+.lede{color:var(--muted);max-width:62ch;margin:10px 0 0}
+.lab{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:24px;margin-top:24px}
+@media(max-width:900px){.lab{grid-template-columns:minmax(0,1fr)}}
+.stage{position:relative;background:radial-gradient(circle at 50% 42%,#18212d 0,#0d1117 62%);border:1px solid var(--line);border-radius:24px;min-height:600px;overflow:hidden;touch-action:none;cursor:grab;user-select:none}
+.stage:active{cursor:grabbing}
+.scene{position:absolute;inset:0;perspective:1500px;display:grid;place-items:center}
+.fit{transform:scale(var(--k,1))}
+.model{position:relative;width:calc(56*var(--S));height:calc(79*var(--S));transform-style:preserve-3d;transition:transform .7s cubic-bezier(.2,.8,.2,1)}
+.layer{position:absolute;inset:0;transform-style:preserve-3d;transition:transform .7s cubic-bezier(.2,.8,.2,1),opacity .3s,filter .3s;pointer-events:none}
+.layer svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.layer svg *{pointer-events:visiblePainted}
+.layer.dim{opacity:.18}
+.layer.sel{filter:drop-shadow(0 0 6px rgba(106,220,255,.8))}
+.layer canvas{position:absolute;image-rendering:pixelated;filter:none;pointer-events:auto}
+.tag{position:absolute;left:14px;top:12px;font-size:13px;color:var(--dim)}
+.tools{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;align-items:center}
+button,select{font:inherit;color:var(--ink);background:#1a2029;border:1px solid #2c3543;border-radius:12px;min-height:44px;padding:0 16px;cursor:pointer}
+button:hover,select:hover{border-color:#40506a}
+button:focus-visible,select:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+button.on{background:#13283a;border-color:var(--blue);color:var(--blue)}
+button.cta{background:var(--blue);color:#06121A;border-color:var(--blue);font-weight:600}
+.seg{display:flex;gap:4px;flex-wrap:wrap}
+select{padding-right:34px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:24px;padding:22px;display:flex;flex-direction:column;gap:16px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips button{min-height:38px;padding:0 12px;font-size:14px;border-radius:999px}
+.detail h3{font-size:24px}
+.detail p{margin:8px 0 0;color:var(--muted)}
+.parts{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column;gap:10px}
+.parts li{display:flex;justify-content:space-between;gap:12px;padding:12px 14px;border-radius:14px;background:#161b24;border:1px solid #232b37}
+.parts b{display:block;font-weight:600}
+.parts span{font-size:14px;color:var(--dim)}
+.price{white-space:nowrap;font-weight:600;color:var(--ink);text-align:right}
+.hint{font-size:14px;color:var(--dim)}
+.grid2{display:grid;grid-template-columns:minmax(0,1.8fr) minmax(0,1fr);gap:24px;margin-top:20px}
+@media(max-width:900px){.grid2{grid-template-columns:minmax(0,1fr)}}
+table{width:100%;border-collapse:collapse;font-size:15px}
+th,td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--dim);font-weight:500;font-size:14px}
+td.n{text-align:right;white-space:nowrap}
+.bar{height:22px;border-radius:11px;background:var(--blue);margin:6px 0 14px}
+.bar.t{background:var(--coral)}
+.stackrow{display:flex;justify-content:space-between;font-size:15px}
+.stackrow span:last-child{color:var(--muted);white-space:nowrap}
+.note{font-size:14px;color:var(--dim);margin-top:10px}
+@media(max-width:600px){table{font-size:13px}.stack thead{display:none}.stack tr{display:grid;padding-block:10px}.stack td{display:flow-root;border:0;padding:3px 0;padding-inline-start:7em;text-align:start}.stack td::before{content:attr(data-l);float:inline-start;width:6.5em;margin-inline-start:-7em;color:var(--dim)}.stack td:empty{display:none}.stage{min-height:520px}}
+@media(prefers-reduced-motion:reduce){.model,.layer{transition:none}}
+</style>
+<script>new MutationObserver(()=>{for(const c of document.querySelectorAll('.stack td:not([data-l])')){let i=0,p=c;while(p=p.previousElementSibling)i+=p.colSpan;c.dataset.l=c.closest('table').rows[0].cells[i]?.textContent||''}}).observe(document,{childList:true,subtree:true})</script>
+</head>
+<body>
+<div class="band">
+  <h1>Take Buzz apart</h1>
+  <p class="lede">The prototype, built from off-the-shelf parts and drawn to their real sizes. Drag to turn it, explode it to see every layer, and tap any part to see what it is and where to buy it. The screen runs Buzz's real Signal eyes.</p>
+
+  <div class="lab">
+    <div>
+      <div class="stage" id="stage" aria-label="Interactive 3D model of the Buzz prototype">
+        <span class="tag" id="tag">Drag to rotate · tap a part</span>
+        <div class="scene"><div class="fit" id="fit"><div class="model" id="model"></div></div></div>
+      </div>
+      <div class="tools">
+        <button class="cta" id="snap">Snap it on</button>
+        <button id="explode">Explode</button>
+        <div class="seg" role="group" aria-label="View">
+          <button data-view="angle" class="on">3/4</button>
+          <button data-view="front">Front</button>
+          <button data-view="side">Side</button>
+          <button data-view="back">Back</button>
+        </div>
+        <label class="hint" for="mood">Face</label>
+        <select id="mood"></select>
+      </div>
+    </div>
+
+    <aside class="panel">
+      <div class="chips" id="chips" role="group" aria-label="Layers"></div>
+      <div class="detail" id="detail" aria-live="polite"></div>
+    </aside>
+  </div>
+
+  <div class="grid2">
+    <div>
+      <h2>Everything to order</h2>
+      <table class="stack">
+        <thead><tr><th>Part</th><th class="n">Qty</th><th>Why we need it</th><th>Why this one is best for the prototype</th><th class="n">Price</th></tr></thead>
+        <tbody id="shop"></tbody>
+      </table>
+      <p class="note">Prices are each retailer's listed single-unit price at the time of writing, before shipping. &ldquo;Kit&rdquo; parts come from any basic electronics starter kit; &ldquo;Small&rdquo; parts cost a few dollars at most hardware or craft stores.</p>
+    </div>
+    <div>
+      <h2>How thick it gets</h2>
+      <div id="stackrows" style="margin-top:16px"></div>
+      <div class="stackrow" style="margin-top:18px"><span>Prototype with these parts</span><span>18.5 mm</span></div>
+      <div class="bar" style="width:100%"></div>
+      <div class="stackrow"><span>Product target, custom board + bare panel</span><span>9 mm</span></div>
+      <div class="bar t" style="width:48.6%"></div>
+      <p class="note">Waveshare doesn't publish the color module's thickness in text, only in its 3D drawing files on the <a href="https://www.waveshare.com/wiki/1.27inch_RGB_OLED_Module">product wiki</a> (Resource &gt; Drawing). 6.2 mm is a safe estimate until you measure the module or open that drawing. The breakout boards and their connectors add height. One custom circuit board with a bare OLED panel brings it back down to about 9 mm.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+{
+/* ---------- parts and layers (all geometry in mm, viewBox 0 -16 56 79) ---------- */
+const OUTER='M17 0H39A17 17 0 0 1 56 17V46A17 17 0 0 1 39 63H17A17 17 0 0 1 0 46V17A17 17 0 0 1 17 0Z';
+const rr=(x,y,w,h,r)=>`M${x+r} ${y}H${x+w-r}A${r} ${r} 0 0 1 ${x+w} ${y+r}V${y+h-r}A${r} ${r} 0 0 1 ${x+w-r} ${y+h}H${x+r}A${r} ${r} 0 0 1 ${x} ${y+h-r}V${y+r}A${r} ${r} 0 0 1 ${x+r} ${y}Z`;
+const KEYS=[];for(let r=0;r<3;r++)for(let c=0;c<4;c++)KEYS.push([10.5+c*11.67,36+r*7.6,2.9]);
+const LINKS={
+  oled:'https://www.waveshare.com/1.27inch-rgb-oled-module.htm',
+  xiao:'https://wiki.seeedstudio.com/XIAO_ESP32C3_Getting_Started/',imu:'https://www.adafruit.com/products/4438',
+  hall:'https://learn.adafruit.com/adafruit-tmag5273-3d-hall-effect-magnetometer-breakout/overview',
+  bat:'https://www.adafruit.com/products/1317',motor:'https://www.adafruit.com/product/1201',
+  ring:'https://www.newegg.com/nakedcellphone-diy-mount-compatible-with-magsafe/p/0SB-019N-000C2'
+};
+const LAYERS=[
+ {id:'shell',name:'Frosted front shell',z:0,
+  svg:`<path fill-rule="evenodd" fill="rgba(226,234,242,.30)" stroke="rgba(255,255,255,.85)" stroke-width=".6" d="${OUTER}${rr(10,8,36,21,5)}${KEYS.map(([x,y,r])=>`M${x+r} ${y}A${r} ${r} 0 1 0 ${x-r} ${y}A${r} ${r} 0 1 0 ${x+r} ${y}Z`).join('')}"/>${[...Array(0)].map((_,i)=>`<line x1="2" x2="54" y1="${3+i*3}" y2="${3+i*3}" stroke="#000" stroke-opacity=".08" stroke-width=".25"/>`).join('')}<defs><linearGradient id="chrome" x1="0" y1="0" x2=".3" y2="1"><stop offset="0" stop-color="#f3f5f7"/><stop offset=".55" stop-color="#c9cdd3"/><stop offset="1" stop-color="#9aa0a8"/></linearGradient></defs><path fill-rule="evenodd" fill="#07090c" d="${rr(8.6,6.6,38.8,23.8,6)}${rr(10,8,36,21,5)}"/><rect x="23" y="61.6" width="10" height="1.6" rx=".8" fill="#1a1c20"/>`,
+  what:'Frosted clear resin, so you can see the parts inside. A black mask around the screen window hides the screen\'s edges. Twelve round key holes in a 4 × 3 grid, and the USB-C port opens on the bottom edge.',
+  bom:['shell','coat','mask']},
+ {id:'lens',name:'Screen lens',z:-0.6,
+  svg:`<path d="${rr(10,8,36,21,5)}" fill="rgba(200,235,255,.07)" stroke="rgba(220,240,255,.45)" stroke-width=".35"/><path d="M14 9.5 L24 9.5 L15 27.5 L11.5 26Z" fill="rgba(255,255,255,.06)"/>`,
+  what:'A clear acrylic window over the OLED so the eyes look like they float behind glass.',
+  bom:['lens']},
+ {id:'antenna',name:'Antenna light',z:-1.2,
+  svg:`<rect x="40.6" y="-9" width="1.8" height="10" rx=".9" fill="#8a929e"/><circle cx="41.5" cy="-11.5" r="5" fill="#FF7A70" opacity=".25" class="beadglow"/><circle cx="41.5" cy="-11.5" r="3.4" fill="#FF8F85" stroke="#ffc8c2" stroke-width=".4"/>`,
+  what:'A frosted printed bead with an RGB LED inside. It glows on notifications and flashes during the snap-on boot.',
+  bom:['led']},
+ {id:'keys',name:'Twelve keys',z:-1.8,
+  svg:KEYS.map(([x,y,r],i)=>`<circle cx="${x}" cy="${y}" r="${r-.25}" fill="#cfd3d8" stroke="#8e949c" stroke-width=".3"/><text x="${x}" y="${y+.9}" text-anchor="middle" font-size="2.6" font-family="Inter,system-ui" fill="#3a3f47">${['♥','☺','♪','◉','1','2','3','⌖','F','∅','▶','↩'][i]}</text>`).join(''),
+  what:'Solid silver caps with engraved, paint-filled icons, a lip inside so they can\'t fall out. A BlackBerry-style 4 × 3 keypad. Top row: Pet, Mood, Music, Camera. Middle: three quick replies and Find my phone. Bottom: Focus, Mute, Game, Back. Every press gets a face reaction and a tap of haptics.',
+  bom:['caps','switches','perf','keychip']},
+ {id:'oled',name:'Color OLED screen',z:-3,canvas:true,
+  svg:`<rect x="6.9" y="4" width="42.2" height="29" rx="1" fill="#14171d" stroke="#3a4250" stroke-width=".35"/>${[[8.6,5.7],[47.4,5.7],[8.6,31.3],[47.4,31.3]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="1.1" fill="#0b0e13" stroke="#c9a35a" stroke-width=".35"/>`).join('')}<rect x="13.6" y="7.3" width="28.8" height="22.4" rx=".6" fill="#050608"/>${[0,1,2,3,4,5,6].map(i=>`<rect x="${21.5+i*2}" y="31.2" width="1" height="1.6" fill="#c9a35a"/>`).join('')}`,
+  what:'A 1.27 inch, 128 × 96 full-color OLED. Same 128-pixel width as the original design, so every expression carries over, now on a blue screen with black eyes, and the screen color changes with the mood. A lit background uses more power than black, so battery size matters more.',
+  bom:['oled','dupont']},
+ {id:'chassis',name:'Inner chassis',z:-5.2,
+  svg:`<path fill-rule="evenodd" fill="#111418" stroke="#2b3038" stroke-width=".3" d="${rr(2.6,2.6,50.8,57.8,14.5)}${rr(4.5,4.5,47,31,3)}${rr(4.5,38,47.8,21.5,3)}"/><path d="M4 37 H52" stroke="#2b6bf0" stroke-width=".35" stroke-dasharray="1.2 1"/>`,
+  what:'An opaque black tray inside the frosted shell. It holds the screen, boards and battery in fixed positions and has channels for the wires, so through the shell you see a tidy skeleton instead of loose parts.',
+  bom:['chassis','wire','ktape']},
+ {id:'boards',name:'Brain + sensors',z:-7.7,
+  svg:`<rect x="4.5" y="39" width="21" height="17.8" rx="1" fill="#1d2430" stroke="#3b4658" stroke-width=".35"/><rect x="8" y="42" width="12" height="9" rx=".5" fill="#c3c8cf"/><rect x="10" y="55.4" width="10" height="3.3" rx="1.2" fill="#b9bec6"/>${[0,1,2,3,4,5,6].map(i=>`<circle cx="5.7" cy="${40.6+i*2.54}" r=".55" fill="#c9a35a"/><circle cx="24.3" cy="${40.6+i*2.54}" r=".55" fill="#c9a35a"/>`).join('')}<rect x="27" y="39" width="25.4" height="17.8" rx="1" fill="#15181d" stroke="#3b4658" stroke-width=".35"/><rect x="37.2" y="45.4" width="5" height="5" fill="#2a2d33"/><rect x="36" y="39.6" width="5" height="2.6" fill="#e9e9e9"/><rect x="26.5" y="31" width="4.1" height="3" fill="#111" stroke="#777" stroke-width=".25"/><path d="M15.5 37.2 C15.5 38.2 14.5 38.5 14.5 39" stroke="#e84a4a" stroke-width=".5" fill="none"/><path d="M40.5 37.2 C40.5 38.2 38.5 38.5 38.5 39.6" stroke="#4a7ae8" stroke-width=".5" fill="none"/>`,
+  what:'The XIAO ESP32C3 runs everything and charges the battery over USB-C. Next to it, the IMU senses motion and tilt, and the small hall sensor feels the phone\'s MagSafe magnets.',
+  bom:['xiao','imu','hall','qwiic']},
+ {id:'battery',name:'Battery + feedback',z:-11.2,
+  svg:`<rect x="15" y="41" width="26" height="19.75" rx="1.4" fill="#cfd4da" stroke="#9aa1ab" stroke-width=".3"/><rect x="15.6" y="42" width="24.8" height="17.7" rx="1" fill="#14171c"/><text x="28" y="52.4" text-anchor="middle" font-family="Space Grotesk" font-weight="700" font-size="4" fill="#2E6BF0">buzz</text><path d="M38 41 V38.5" stroke="#e84a4a" stroke-width=".6"/><path d="M36.8 41 V38.5" stroke="#222" stroke-width=".6"/><circle cx="9.5" cy="50" r="5" fill="#c6cbd2" stroke="#8f96a0" stroke-width=".3"/><circle cx="9.5" cy="50" r="1.6" fill="none" stroke="#9aa1ab" stroke-width=".3"/><circle cx="47.5" cy="50" r="6" fill="#1b1d21" stroke="#4d5460" stroke-width=".3"/><circle cx="47.5" cy="50" r=".9" fill="#000"/>`,
+  what:'A 150 mAh LiPo sits on top of the boards, with the coin vibration motor on one side and the piezo buzzer for the snap-on chirp on the other.',
+  bom:['bat','bat350','jst','pswitch','divider','foam','wrap','motor','driver','buzzer']},
+ {id:'back',name:'Frosted back shell',z:-15,
+  svg:`<path d="${OUTER}" fill="rgba(226,234,242,.30)" stroke="rgba(255,255,255,.8)" stroke-width=".5"/>${[[6,6],[50,6],[6,57],[50,57]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="1.6" fill="#1c1f25" stroke="#555d6a" stroke-width=".3"/>`).join('')}<text x="28" y="33" text-anchor="middle" font-family="Space Grotesk" font-weight="700" font-size="4" fill="#333944" letter-spacing=".8">BUZZ v0.1</text>`,
+  what:'Frosted clear resin to match the front. Four self-tapping M2 screws hold it on (resin can crack with heat-set inserts). The magnet ring glues to its outside.',
+  bom:['shell','screws']},
+ {id:'ring',name:'Magnet ring',z:-16.5,
+  svg:`<path fill-rule="evenodd" fill="#2b2e33" stroke="#5a606b" stroke-width=".35" d="M53 31.5A25 25 0 1 1 3 31.5A25 25 0 1 1 53 31.5ZM48 31.5A20 20 0 1 0 8 31.5A20 20 0 1 0 48 31.5Z"/>`,
+  what:'The magnetic ring that snaps Buzz onto a MagSafe phone. Use the black magnetic ring from a DIY kit, not a plain metal ring.',
+  bom:['ring','glue']}
+];
+
+const BOM={
+ oled:{n:'1.27" RGB OLED, 128 × 96 (SSD1351)',q:1,why:'Shows the eyes, now in color.',best:'Same 128-pixel width as the original design so all 32 faces carry over, true-black OLED so the eyes float, 262K colors, and the 42.2 × 29 mm module fits the shell. It ships with its 7-pin cable.',p:'$16.99',h:'oled'},
+ dupont:{n:'Jumper wires + 30 AWG silicone wire',q:1,why:'The color screen talks over SPI (7 wires), so it has no plug-in Qwiic cable.',best:'Jumpers for testing on the desk, then soft silicone wire soldered short so it folds inside the shell.',p:'Kit'},
+ xiao:{n:'Seeed XIAO ESP32C3',q:1,why:'The brain: runs the eye animations, talks to the phone over Bluetooth and charges the battery.',best:'Built-in LiPo charging and USB-C means no extra charger board, it is thumb-sized at 21 × 17.8 mm, and it costs about $5.',p:'$4.99',h:'xiao'},
+ imu:{n:'Adafruit LSM6DSOX IMU',q:1,why:'Feels motion: Surprised, Dizzy, Scared, Upside down and My turn all come from it.',best:'Plugs in with Qwiic (no soldering), low noise, and has tap and free-fall detection built into the chip.',p:'$11.95',h:'imu'},
+ hall:{n:'Adafruit TMAG5273 hall sensor',q:1,why:'Knows when Buzz snaps onto or comes off a phone, which triggers Snap on and Bye for now.',best:'It measures the field in 3D, so it can tell the phone\'s MagSafe magnets apart from Buzz\'s own ring, runs on 3.3V and plugs in with Qwiic.',p:'See site',h:'hall'},
+ qwiic:{n:'Qwiic / STEMMA QT cables, 50 mm',q:2,why:'Chain the IMU and hall sensor to the XIAO.',best:'Short cables keep the inside tidy and need no soldering.',p:'Small'},
+ bat:{n:'Adafruit 150 mAh LiPo',q:1,why:'Powers Buzz off the charger.',best:'At 19.75 × 26.02 × 3.8 mm it fits between the motor and buzzer. It plugs into a JST socket wired through the power switch to the XIAO\'s BAT+ and BAT− pads, sits on Kapton tape over the boards, and is held with foam tape.',p:'$5.95',h:'bat'},
+ pswitch:{n:'Mini slide power switch',q:1,why:'Fully turns Buzz off so the battery is not drained in a drawer.',best:'Cuts the battery line itself, the safest and simplest off switch.',p:'Kit'},
+ motor:{n:'Adafruit vibration motor disc',q:1,why:'Haptic buzz for Angry, Scared and alerts.',best:'Only 10 mm × 2.7 mm and runs on 2 to 5V.',p:'$1.95',h:'motor'},
+ driver:{n:'PN2222 transistor + 1N4148 diode + 1 kΩ resistor',q:1,why:'The motor draws 60 to 100 mA, more than a XIAO pin can supply, so the transistor switches it.',best:'Classic, cheap and reliable. The diode protects the XIAO from voltage spikes when the motor stops.',p:'Kit'},
+ buzzer:{n:'Passive piezo buzzer, about 12 mm',q:1,why:'Plays the rising snap-on chirp.',best:'A passive buzzer can play any note, so the chirp sounds musical. An active one only beeps.',p:'Kit'},
+ led:{n:'Mini RGB LED, NeoPixel type (SK6812 / WS2812B mini)',q:1,why:'Lights the antenna bead for notifications and the boot flash.',best:'Any color from a single data pin. The XIAO only has 11 pins, so this saves two compared with a plain RGB LED.',p:'Kit'},
+ keychip:{n:'Adafruit TCA8418 keypad matrix breakout',q:1,why:'Reads all 12 keys and sends key presses to the XIAO.',best:'Scans and debounces the keypad itself over I2C (Qwiic), so the keys use no extra XIAO pins.',p:'See site'},
+ jst:{n:'JST-PH 2-pin socket with wires',q:1,why:'Lets the battery plug in and out.',best:'Swap or remove the battery without desoldering. Check polarity with a multimeter first.',p:'Kit'},
+ divider:{n:'2 × 220 kΩ resistors',q:1,why:'Lets Buzz read its battery level for the Low battery face.',best:'The XIAO has no built-in battery gauge; a simple divider into A0 is enough.',p:'Kit'},
+ bat350:{n:'Backup LiPo, about 350 mAh',q:1,why:'In case the lit blue screen drains the 150 mAh too fast.',best:'Longer battery life for testing, a little thicker. Measure both.',p:'See site'},
+ foam:{n:'Thin double-sided foam tape',q:1,why:'Holds the battery in place.',best:'Cushions the pouch. Never glue directly onto a battery.',p:'Small'},
+ switches:{n:'6 mm tactile switches',q:12,why:'The twelve keys: Pet, Mood, Music, Camera, three quick replies, Find my phone, Focus, Mute, Game and Back.',best:'Standard, clicky and they sit right under round printed caps. Wired as a 4 × 3 matrix to the keypad chip.',p:'Kit'},
+ perf:{n:'Small perfboard + 12 1N4148 diodes',q:1,why:'Holds the twelve switches as a matrix, with one diode per key so pressing two keys at once never confuses it, and the motor driver parts.',best:'Cut to fit behind the keys, easy to solder by hand.',p:'Kit'},
+ lens:{n:'Clear acrylic, 1 to 2 mm',q:1,why:'Protects the screen and makes the eyes look like they sit behind glass.',best:'Cheap and easy to cut to 36 × 21 mm with rounded corners, or order it laser-cut.',p:'Small'},
+ shell:{n:'Front and back shell in clear resin (SLA), frosted',q:1,why:'The see-through body that shows the parts inside.',best:'Only resin prints come out truly clear. Wet-sand 400 to 2000 grit, then a matte clear coat gives the frosted look, which also hides fingerprints and small scratches. Order from a resin print service (JLCPCB, Craftcloud) or print at home. Add about 0.2 mm to key holes, the USB-C slot and the screen window for resin shrink, and do one fit test in cheap gray resin first.',p:'Print'},
+ coat:{n:'Matte clear spray, UV-resistant',q:1,why:'Gives the frosted finish and protects the shell.',best:'UV resistance stops clear resin from yellowing in sunlight.',p:'Small'},
+ mask:{n:'Black screen mask',q:1,why:'Hides the screen\'s edges and ribbon cable behind the frosted shell.',best:'Paint the inside border of the screen window black, or print a thin black frame. Makes the blue screen look crisp.',p:'Small'},
+ caps:{n:'Silver key caps with engraved icons',q:12,why:'The 12 keys you press.',best:'Opaque silver matches the mock-up and hides the switches. Engrave the icons and fill them with paint. Each cap has a lip inside the shell so it can\'t fall out, with about 0.2 mm clearance and 0.3 mm of press before the click. For unit two, try a one-piece cast silicone keypad for a softer feel.',p:'Print'},
+ chassis:{n:'Black inner chassis (printed)',q:1,why:'Holds every part in place inside the see-through shell.',best:'Opaque black makes the inside look organized, with wire channels so the wiring is part of the design.',p:'Print'},
+ wire:{n:'Matched-color silicone wire (black + blue)',q:1,why:'All internal wiring, visible through the shell.',best:'Matched colors routed in the chassis channels look intentional instead of messy.',p:'Kit'},
+ ktape:{n:'Black Kapton tape',q:1,why:'Insulation that disappears behind the frosted shell.',best:'Black hides better than the usual amber.',p:'Small'},
+ wrap:{n:'Branded battery wrap or sticker',q:1,why:'Covers the silver battery pouch, which shows through the shell.',best:'Turns the battery into a branded detail. Never glue onto the pouch itself; a sticker on its face is fine.',p:'Small'},
+ screws:{n:'Self-tapping M2 × 6 mm screws',q:4,why:'Hold the back shell on so it can open for fixes.',best:'Safer than heat-set inserts in resin, which can crack. Give the screw posts thick walls.',p:'Small'},
+ ring:{n:'DIY magnetic ring kit',q:1,why:'Snaps Buzz onto any MagSafe phone.',best:'The kit\'s black ring has magnets inside. Glue it to the outside of the back shell.',p:'See site',h:'ring'},
+ glue:{n:'E6000 or 2-part epoxy',q:1,why:'Holds the magnet ring and the lens.',best:'Both stay a little flexible or very strong, and grip PLA and acrylic.',p:'Small'}
+};
+const TOOLS='Soldering iron, solder and flux, a USB-C cable, flush cutters, tweezers, and a 3D printer or print service.';
+const THICK=[['Front shell + lens',1.5],['Color OLED module (estimate)',6.2],['XIAO + IMU',3.5],['LiPo battery',3.8],['Back shell',1.5],['Magnet ring',2]];
+
+/* ---------- Signal-eye engine (same data as the Flipper app) ---------- */
+const OPEN=[[24,16],[20,24],[24,16]],LINES=[[34,3],[34,3],[34,3]],ARCH=[[22,8],[18,8],[22,8]],HEART=[[23,10],[21,16],[25,18],[21,16],[23,10]];
+const eye=(x0,sp,a='',o={})=>{const w=o.w||4,g=o.gap||2,d0=o.d0||0;return sp.map((s,i)=>({x:x0+i*(w+g),y:s[0],w,h:s[1],a,slot:i+d0,r:1}))};
+const both=(L,R,a='')=>eye(32,L,a).concat(eye(80,R||L,a,{d0:3}));
+const px=(l,a='')=>l.map(r=>({x:r[0],y:r[1],w:r[2],h:r[3],a:r[4]||a,slot:r[5]||0,r:0}));
+const T=[[18,24],[14,28],[18,24]],WIDE=[[20,10],[14,12],[20,10]],TALL=[[18,28],[14,36],[18,28]];
+const M={
+ idle:{n:'Idle',b:both(OPEN,0,'blink'),g:'look'},happy:{n:'Happy',b:both(ARCH),g:'hop'},
+ excited:{n:'Excited',b:both(WIDE),g:'hopfast',d:px([[12,6,2,10],[8,10,10,2],[114,6,2,10],[110,10,10,2]]),da:'flash'},
+ love:{n:'Love',b:eye(31,HEART,'',{w:3,gap:1}).concat(eye(79,HEART,'',{w:3,gap:1})),g:'pulse'},
+ listening:{n:'Listening',b:eye(32,[[28,10],[18,26],[24,16]],'eq').concat(eye(80,[[20,22],[27,12],[22,20]],'eq',{d0:3})),caps:1},
+ music:{n:'Vibing',b:eye(32,[[22,18],[16,30],[26,10]],'eqf').concat(eye(80,[[26,10],[18,26],[22,18]],'eqf',{d0:3})),caps:1,d:px([[114,4,2,12],[109,13,6,4],[116,4,4,2],[119,6,2,2]]),da:'float'},
+ surprised:{n:'Surprised',b:both(TALL),g:'pop'},
+ curious:{n:'Curious',b:eye(32,[[26,12],[22,20],[26,12]],'blink').concat(eye(80,[[20,22],[16,30],[20,22]],'blink',{d0:3})),g:'bob'},
+ thinking:{n:'Thinking',b:eye(28,[[16,12],[12,20],[16,12]]).concat(eye(76,[[16,12],[12,20],[16,12]])),d:px([[100,52,3,3,'dot',1],[106,52,3,3,'dot',2],[112,52,3,3,'dot',3]])},
+ confused:{n:'Confused',b:eye(32,OPEN).concat(eye(80,[[30,6],[28,8],[30,6]])),d:px([[110,4,6,2],[116,6,2,4],[112,10,4,2],[112,12,2,3],[112,17,2,2]]),da:'bob'},
+ sleepy:{n:'Sleepy',b:both(LINES),d:px([[106,8,7,2],[111,10,2,2],[109,12,2,2],[107,14,2,2],[106,16,7,2],[116,2,4,1],[119,3,1,1],[117,4,1,1],[116,5,4,1]]),da:'float'},
+ bored:{n:'Bored',b:both([[30,8],[30,8],[30,8]],0,'blink')},
+ sad:{n:'Sad',b:eye(32,[[30,12],[27,14],[24,16]]).concat(eye(80,[[24,16],[27,14],[30,12]])),d:px([[34,46,2,3],[33,48,4,2]]),da:'tear'},
+ angry:{n:'Angry',b:eye(32,[[18,24],[22,20],[26,16]]).concat(eye(80,[[26,16],[22,20],[18,24]])),g:'shake'},
+ scared:{n:'Scared',b:eye(34,[[26,12],[24,16],[26,12]],'',{w:3,gap:2}).concat(eye(82,[[26,12],[24,16],[26,12]],'',{w:3,gap:2})),g:'shiver',d:px([[105,8,2,2],[104,10,4,3],[105,13,2,1]]),da:'tear'},
+ dizzy:{n:'Dizzy',b:both([[26,12],[26,12],[26,12]],0,'zig')},focused:{n:'Focused',b:both([[28,8],[18,28],[28,8]])},
+ wink:{n:'Wink',b:eye(32,OPEN,'blink').concat(eye(80,ARCH,'',{d0:3})),g:'bob'},
+ shy:{n:'Shy',b:both([[34,8],[32,10],[34,8]]),d:px([[31,48,3,2],[37,48,3,2],[43,48,3,2],[79,48,3,2],[85,48,3,2],[91,48,3,2]]),da:'flash'},
+ smug:{n:'Smug',b:eye(32,[[30,8],[28,10],[26,12]]).concat(eye(80,[[26,12],[28,10],[30,8]])),g:'bob'},
+ notify:{n:'Alert',b:eye(36,T).concat(eye(84,T)),g:'hop',d:px([[114,3,3,10],[114,15,3,3]]),da:'flash'},
+ charging:{n:'Charging',b:[],d:px([[44,20,36,2],[44,42,36,2],[44,20,2,24],[78,20,2,24],[80,28,3,8],[49,25,7,14,'fill',0],[58,25,7,14,'fill',1],[67,25,7,14,'fill',2]])},
+ lowbat:{n:'Low battery',b:both([[32,8],[30,10],[32,8]]),d:px([[104,4,14,1],[104,11,14,1],[104,4,1,8],[117,4,1,8],[118,6,2,4],[106,6,3,4,'dot',0]])},
+ glitch:{n:'Glitch',b:eye(32,[[16,10],[30,14],[20,8]]).concat(eye(80,[[24,16],[14,20],[30,10]])),g:'glitch',d:px([[10,50,4,2],[116,12,3,2],[60,6,6,1],[70,56,2,2]]),da:'flash'},
+ snapon:{n:'Snap on',b:both(OPEN,0,'build'),d:px([[14,31,8,2],[106,31,8,2]]),da:'flash'},
+ detach:{n:'Bye for now',b:both(OPEN,0,'drop')},
+ slipping:{n:'Slipping',b:both(OPEN),g:'tilt',d:px([[8,30,6,2],[114,30,6,2]]),da:'flash'},
+ spotlight:{n:'My turn',b:both(WIDE),g:'hop',d:px([[10,6,2,8],[7,9,8,2],[116,48,2,8],[113,51,8,2]]),da:'flash'},
+ camera:{n:'Say cheese',b:both(TALL),d:px([[6,6,10,2],[6,6,2,10],[112,6,10,2],[120,6,2,10],[6,56,10,2],[6,48,2,10],[112,56,10,2],[120,48,2,10]]),da:'flash'},
+ pocket:{n:'Pocket mode',b:both([[32,6],[30,8],[32,6]]),g:'dim'},
+ findme:{n:'Find me',b:both(OPEN,0,'eq'),d:px([[22,26,2,12,'dot',1],[16,22,2,20,'dot',2],[10,18,2,28,'dot',3],[104,26,2,12,'dot',1],[110,22,2,20,'dot',2],[116,18,2,28,'dot',3]])},
+ upsidedown:{n:'Upside down',b:both([[18,12],[18,20],[18,12]]),g:'bob',d:px([[60,50,8,2],[60,50,2,6],[66,50,2,6]])},
+ off:{n:'',b:[]},snap1:{n:'',b:eye(32,[[28,8]])},snap2:{n:'',b:eye(32,OPEN)},snap3:{n:'',b:both(OPEN)}
+};
+const BLUE='#2E6BF0',SUN='#FFD166',CORAL='#FF7A70',RED='#FF5A4E',LAV='#9C8CFF',MINT='#7CFFB2';
+const COL={happy:SUN,excited:SUN,wink:SUN,smug:SUN,spotlight:SUN,camera:SUN,love:CORAL,shy:CORAL,angry:RED,glitch:RED,lowbat:RED,sad:LAV,scared:LAV,sleepy:LAV,bored:LAV,pocket:LAV,charging:MINT,snap3:BLUE};
+const RAINBOW={music:1,dizzy:1};
+const BROWSE=Object.keys(M).filter(k=>M[k].n);
+const ph=(t,p,d=0)=>((t+p*64-(d%p))%p)/p;
+const keys=(p,kx,ky)=>{if(p<=kx[0])return ky[0];for(let i=1;i<kx.length;i++)if(p<=kx[i]){const s=kx[i]-kx[i-1];return ky[i-1]+(ky[i]-ky[i-1])*(s?(p-kx[i-1])/s:1)}return ky[ky.length-1]};
+const E={mood:'idle',start:0,nextBlink:2500,blinkAt:0,blinking:false,caps:[],capsReady:false,last:0};
+function setMood(m,now){E.mood=m;E.start=now;E.capsReady=false;E.last=now}
+function blinkScale(now){if(!E.blinking&&now>=E.nextBlink){E.blinking=true;E.blinkAt=now}if(!E.blinking)return 1;const b=now-E.blinkAt;if(b<40)return 1-.6*b/40;if(b<100)return .12;if(b<140)return .4+.6*(b-100)/40;E.blinking=false;E.nextBlink=now+3000+Math.random()*2000;return 1}
+function group(g,t){const o={dx:0,dy:0,s:1,sh:0,dim:false},S=Math.sin,PI=Math.PI;
+ if(g==='look')o.dx=keys(ph(t,6000),[0,.3,.4,.55,.65,.8,1],[0,0,-5,-5,5,5,0]);
+ else if(g==='hop')o.dy=-2.5*S(PI*ph(t,1400));else if(g==='hopfast')o.dy=-2.5*S(PI*ph(t,550));
+ else if(g==='bob')o.dy=-1.6*S(PI*ph(t,1800));else if(g==='pulse')o.s=keys(ph(t,1200),[0,.15,.3,.45,1],[1,1.07,1,1.05,1]);
+ else if(g==='pop')o.s=1+.05*S(PI*ph(t,1600));else if(g==='shake')o.dx=keys(ph(t,350),[0,.25,.75,1],[0,-2,2,0]);
+ else if(g==='shiver')o.dx=ph(t,120)<.5?-1:1;else if(g==='tilt')o.sh=Math.tan(-6*Math.cos(2*PI*ph(t,1100))*PI/180);
+ else if(g==='dim')o.dim=true;else if(g==='glitch'){const p=ph(t,1300);if(p>=.2&&p<.24)o.dx=4;else if(p>=.24&&p<.28)o.dx=-3;else if(p>=.7&&p<.74){o.dx=-4;o.dy=1}}
+ return o}
+function barAnim(r,t,bl){let sy=1,oy=0;const d=r.slot*150;
+ if(r.a==='blink')sy=bl;
+ else if(r.a==='eq'||r.a==='eqf')sy=keys(ph(t,r.a==='eq'?900:450,d),[0,.35,.7,1],[1,.45,1.15,1]);
+ else if(r.a==='zig')oy=-.35*r.h*Math.cos(2*Math.PI*ph(t,700,(r.slot&1)?350:0));
+ else if(r.a==='build'){sy=keys(ph(t,2600,d),[0,.04,.22,.3,.86,1],[0,0,1.2,1,1,0]);if(sy<.05)return null}
+ else if(r.a==='drop'){const p=ph(t,2400,d);if(p<.25)sy=1;else if(p<.6){const k=(p-.25)/.35;sy=1-.9*k;oy=.7*r.h*k}else if(p<.85)return null}
+ return[sy,oy]}
+function render(now){const m=M[E.mood],t=now-E.start,dt=now-E.last;E.last=now;const out=[],bl=blinkScale(now),g=group(m.g,t);
+ m.b.forEach((r,i)=>{const a=barAnim(r,t,bl);if(!a)return;let h=Math.max(1,r.h*a[0]);const y=r.y+(r.h-h)/2+a[1],cx=r.x+r.w/2;
+  const x2=Math.round(64+(r.x-64)*g.s+g.dx),y2=Math.round(32+(y-32)*g.s+g.dy+g.sh*(cx-64)),w2=Math.round(r.w*g.s),h2=Math.max(1,Math.round(h*g.s));
+  out.push([x2,y2,w2,h2,g.dim?2:0]);
+  if(m.caps){const top=y2-3;if(!E.capsReady||top<E.caps[i])E.caps[i]=top;else E.caps[i]=Math.min(top,E.caps[i]+.014*dt);out.push([x2,Math.round(E.caps[i]),w2,1,1])}});
+ if(m.caps)E.capsReady=true;
+ if(m.d){let dy=0,vis=true,p;
+  if(m.da==='float'){p=ph(t,2400);dy=4-9*p;vis=p>.08&&p<.9}else if(m.da==='flash')vis=ph(t,900)<.5;
+  else if(m.da==='tear'){p=ph(t,2200);dy=-2.5+10*p;vis=p>.15&&p<.9}else if(m.da==='bob')dy=-1.6*Math.sin(Math.PI*ph(t,1800));
+  if(vis)m.d.forEach(r=>{let st=1;if(r.a==='dot'){const q=ph(t,1200,r.slot*150);if(!(q>.1&&q<.45))st=2}else if(r.a==='fill'){if(ph(t,1500,r.slot*500)<.33)st=2}out.push([r.x,r.y+Math.round(dy),r.w,r.h,st])})}
+ return out}
+
+/* ---------- build the model ---------- */
+const S=6,model=document.getElementById('model'),stage=document.getElementById('stage');
+model.innerHTML=LAYERS.map(L=>`<div class="layer" data-layer="${L.id}"><svg viewBox="0 -16 56 79" aria-hidden="true">${L.svg}</svg>${L.canvas?'<canvas width="128" height="96" id="oled"></canvas>':''}</div>`).join('');
+const cv=document.getElementById('oled');
+Object.assign(cv.style,{left:(28-12.854)*S+'px',top:(16+8.86)*S+'px',width:25.708*S+'px',height:19.28*S+'px'});
+const ctx=cv.getContext('2d');
+let exploded=false,sel=null,rx=-18,ry=-28;
+const VIEWS={angle:[-18,-28],front:[0,0],side:[-6,-72],back:[0,180]};
+function layout(){LAYERS.forEach((L,i)=>{const el=model.querySelector(`[data-layer="${L.id}"]`);const z=L.z*S*1.6-(exploded?i*46:0);el.style.transform=`translateZ(${z}px)`;
+  el.classList.toggle('dim',!!sel&&sel!==L.id&&exploded);el.classList.toggle('sel',sel===L.id)});
+ model.style.transform=`rotateX(${rx}deg) rotateY(${ry}deg) translateZ(${exploded?120:0}px)`;
+ document.getElementById('explode').textContent=exploded?'Put it together':'Explode';document.getElementById('explode').classList.toggle('on',exploded)}
+function fit(){const w=stage.clientWidth,h=stage.clientHeight;document.getElementById('fit').style.setProperty('--k',Math.min(1,(w-40)/460,(h-40)/560).toFixed(3))}
+new ResizeObserver(fit).observe(stage);
+
+/* ---------- panel ---------- */
+const chips=document.getElementById('chips'),detail=document.getElementById('detail');
+chips.innerHTML=`<button data-pick="">Overview</button>`+LAYERS.map(L=>`<button data-pick="${L.id}">${L.name}</button>`).join('');
+const priceCell=p=>p;
+function showDetail(){chips.querySelectorAll('button').forEach(b=>b.classList.toggle('on',(b.dataset.pick||null)===sel));
+ if(!sel){detail.innerHTML=`<h3>Buzz prototype v0.1</h3><p>Ten layers built from parts you can order today, in a frosted see-through shell, now with a 1.27 inch full-color OLED. The screen is blue with black eyes, and its color changes with the mood. Tap <b>Explode</b>, then tap any layer to see the part, its size and where to buy it.</p><p class="hint" style="margin-top:12px">Tip: <b>Snap it on</b> plays the boot sequence, with the chirp.</p>`;return}
+ const L=LAYERS.find(l=>l.id===sel);
+ detail.innerHTML=`<h3>${L.name}</h3><p>${L.what}</p><ul class="parts">${L.bom.map(k=>{const p=BOM[k];return `<li><div><b>${p.h?`<a href="${LINKS[p.h]}">${p.n}</a>`:p.n}${p.q>1?` × ${p.q}`:''}</b><span><b style="display:inline;color:var(--ink);font-weight:500">Why:</b> ${p.why}</span><span style="display:block;margin-top:4px"><b style="display:inline;color:var(--ink);font-weight:500">Why this one:</b> ${p.best}</span></div><div class="price">${p.p}</div></li>`}).join('')}</ul>`}
+chips.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;sel=b.dataset.pick||null;if(sel&&!exploded)exploded=true;layout();showDetail()});
+
+/* shopping list + thickness */
+document.getElementById('shop').innerHTML=Object.values(BOM).map(p=>`<tr><td>${p.h?`<a href="${LINKS[p.h]}">${p.n}</a>`:p.n}</td><td class="n">${p.q}</td><td>${p.why}</td><td>${p.best}</td><td class="n">${p.p}</td></tr>`).join('')+`<tr><td>Tools</td><td></td><td colspan="3">${TOOLS}</td></tr>`;
+document.getElementById('stackrows').innerHTML=THICK.map(([n,v])=>`<div class="stackrow"><span>${n}</span><span>${v.toFixed(1)} mm</span></div><div style="height:8px;border-radius:4px;background:#2a3446;margin:5px 0 10px;width:${(v/6.2*100).toFixed(0)}%"></div>`).join('');
+
+/* ---------- interaction ---------- */
+let drag=null;
+stage.addEventListener('pointerdown',e=>{drag={x:e.clientX,y:e.clientY,rx,ry,moved:false};stage.setPointerCapture(e.pointerId)});
+stage.addEventListener('pointermove',e=>{if(!drag)return;const dx=e.clientX-drag.x,dy=e.clientY-drag.y;if(Math.abs(dx)+Math.abs(dy)>5)drag.moved=true;if(!drag.moved)return;
+ ry=drag.ry+dx*.45;rx=Math.max(-70,Math.min(70,drag.rx-dy*.35));model.style.transition='none';layout()});
+stage.addEventListener('pointerup',e=>{if(!drag)return;const was=drag;drag=null;model.style.transition='';
+ if(!was.moved){stage.releasePointerCapture(e.pointerId);const hit=document.elementFromPoint(e.clientX,e.clientY);const l=hit&&hit.closest('[data-layer]');
+  sel=l?l.dataset.layer:null;if(sel&&!exploded)exploded=true;layout();showDetail()}
+ document.querySelectorAll('[data-view]').forEach(b=>b.classList.remove('on'))});
+document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>{[rx,ry]=VIEWS[b.dataset.view];document.querySelectorAll('[data-view]').forEach(x=>x.classList.toggle('on',x===b));layout()}));
+document.getElementById('explode').addEventListener('click',()=>{exploded=!exploded;if(!exploded)sel=null;layout();showDetail()});
+const sel_=document.getElementById('mood');
+sel_.innerHTML=BROWSE.map(k=>`<option value="${k}">${M[k].n}</option>`).join('');
+sel_.addEventListener('change',()=>{boot=null;setMood(sel_.value,performance.now())});
+
+/* snap-on: fly together, chirp, boot */
+let boot=null;
+function chirp(){try{const A=window.AudioContext||window.webkitAudioContext;const ac=new A();[523.25,659.25,783.99,1046.5].forEach((f,i)=>{const o=ac.createOscillator(),g=ac.createGain();o.type='square';o.frequency.value=f;g.gain.value=.05;o.connect(g).connect(ac.destination);const t=ac.currentTime+i*.06;o.start(t);o.stop(t+.055)})}catch(e){}}
+document.getElementById('snap').addEventListener('click',()=>{sel=null;exploded=true;layout();showDetail();setMood('off',performance.now());
+ setTimeout(()=>{exploded=false;layout()},350);
+ setTimeout(()=>{chirp();boot=performance.now();const g=document.querySelector('.beadglow');if(g){g.setAttribute('opacity','.9');setTimeout(()=>g.setAttribute('opacity','.25'),700)}},1050)});
+
+/* ---------- face loop ---------- */
+function frame(now){
+ if(boot!==null){const e=now-boot;const want=e<80?'off':e<200?'snap1':e<380?'snap2':e<600?'snap3':e<1800?'happy':'idle';if(E.mood!==want)setMood(want,now);if(want==='idle'){boot=null;sel_.value='idle'}}
+ const rects=render(now),OY=16,bg=RAINBOW[E.mood]?`hsl(${((now-E.start)/12)%360} 85% 62%)`:(COL[E.mood]||BLUE);ctx.fillStyle=bg;ctx.fillRect(0,0,128,96);
+ for(const [x,y0,w,h,st] of rects){if(w<=0||h<=0)continue;const y=y0+OY;ctx.fillStyle='#05070a';
+  if(st===2&&w>=2&&h>=2){ctx.fillRect(x,y,w,1);ctx.fillRect(x,y+h-1,w,1);ctx.fillRect(x,y,1,h);ctx.fillRect(x+w-1,y,1,h)}
+  else{ctx.fillRect(x,y,w,h);if(st===0&&w>=3&&h>=3){ctx.fillStyle=bg;ctx.fillRect(x,y,1,1);ctx.fillRect(x+w-1,y,1,1);ctx.fillRect(x,y+h-1,1,1);ctx.fillRect(x+w-1,y+h-1,1,1)}}}
+ requestAnimationFrame(frame)}
+setMood('idle',performance.now());layout();showDetail();fit();requestAnimationFrame(frame);
+}
+</script>
+</body>
+</html>
