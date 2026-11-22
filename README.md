@@ -73,6 +73,8 @@ It plays the same way every time, so it doubles as Buzz's sound-and-light logo.
 
 ## What's inside
 
+The full build plan, with every part, the battery and how it goes in, the pin plan, assembly steps, testing and costs, is in [docs/PROTOTYPE_BUILD.md](docs/PROTOTYPE_BUILD.md).
+
 Prototype v0.1. These are the parts we're designing around, still to be confirmed with the first build.
 
 | | |
@@ -80,11 +82,11 @@ Prototype v0.1. These are the parts we're designing around, still to be confirme
 | **Screen** | 1.27" full-color OLED, 128x96, 262K colors, SSD1351 driver ([Waveshare](https://www.waveshare.com/1.27inch-rgb-oled-module.htm)) |
 | **Brain** | ESP32-C3 with Bluetooth LE |
 | **Sensors** | 6-axis IMU (motion, tilt, free fall) and a hall-effect sensor (MagSafe attach and detach) |
-| **Feedback** | RGB LED in the antenna bead, piezo buzzer, vibration motor |
+| **Feedback** | NeoPixel-type RGB LED in the antenna bead, piezo buzzer, vibration motor |
 | **Controls** | Twelve round keys in a 4 × 3 grid, BlackBerry style (see [The keypad](#the-keypad)) |
 | **Body** | Silver shell, USB-C charging port on the bottom edge |
 | **Attach** | MagSafe-compatible magnet ring with an alignment magnet |
-| **Power** | Small LiPo cell, USB-C charging |
+| **Power** | 150 mAh LiPo (350 mAh backup) on a JST plug through a power switch, USB-C charging on the bottom edge |
 | **Size** | About 56 x 63 x 9 mm (target) |
 
 ## The keypad
@@ -105,7 +107,7 @@ Ideas for making the keys feel alive:
 - **Mini games.** Simon Says (Buzz flashes a pattern on the screen, you repeat it on the keys), Pet streaks, a reaction-time game.
 - **Number pad mode.** Hold Back + Mood to type numbers, for things like a quick timer.
 
-The keys are wired as a 4 × 3 matrix so all twelve use only seven pins on the XIAO.
+The keys are wired as a 4 × 3 matrix to a TCA8418 keypad chip, which reads them over I2C so they use no extra XIAO pins.
 
 What the keys need to work (firmware, Bluetooth profiles, the companion app, and what iPhone and Android allow for music, camera, replies and more) is in [docs/KEYS_AND_SOFTWARE.md](docs/KEYS_AND_SOFTWARE.md).
 
@@ -187,6 +189,7 @@ The full guide, with the rules for using the eyes and the moments to film for ma
 └── docs/
     ├── BRAND.md              ← brand kit: logo, colors, type, voice
     ├── KEYS_AND_SOFTWARE.md  ← keypad, phone features, firmware and app plan
+    ├── PROTOTYPE_BUILD.md    ← full parts list, battery, pins, assembly, testing
     ├── brand/                ← hero, logo, app icons, palette and type images
     ├── expressions/          ← animated previews of every expression
     ├── SCOPE.md              ← what is in / out of scope

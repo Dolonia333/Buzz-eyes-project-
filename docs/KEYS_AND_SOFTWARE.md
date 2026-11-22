@@ -23,7 +23,7 @@ Twelve round keys in a 4 × 3 grid, BlackBerry style.
 
 ## 1. Mechanics on Buzz (firmware)
 
-- **Key matrix scanning:** read the 4 × 3 grid about every 5 ms. Twelve keys use only 7 XIAO pins, with one 1N4148 diode per key so pressing two keys at once is never misread.
+- **Key matrix scanning:** the 4 × 3 grid is read by a TCA8418 keypad chip over I2C, which scans and debounces it and sends key events. That keeps the XIAO's limited pins free (see PROTOTYPE_BUILD.md). One 1N4148 diode per key stops ghost presses.
 - **Debounce:** ignore contact bounce (about 5 to 20 ms) so one press counts once.
 - **Press types:** short press, long press (about 500 ms) and double tap. Twelve keys cover 24 or more actions.
 - **Instant feedback:** every press goes straight to the eye engine (a face reaction) and the vibration motor (a short tap) before the phone answers, so Buzz always feels responsive.
