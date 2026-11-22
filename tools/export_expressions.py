@@ -86,6 +86,16 @@ def main():
             stills.append((name, images[len(images) // 3]))
             print("wrote", os.path.relpath(path, ROOT))
 
+        # The snap-on boot: dark, 1 bar, 1 eye, full signal, then a happy hello.
+        index = {n: i for i, n in moods}
+        boot = []
+        for name, ms in [("Off", 500), ("Snap 1", 150), ("Snap 2", 200), ("Snap 3", 250), ("Happy", 1500)]:
+            raw = subprocess.run([exe, str(index[name]), str(ms), str(FPS)], capture_output=True, check=True).stdout
+            boot += [to_image(raw[k:k + W * H]) for k in range(0, len(raw), W * H)]
+        boot_path = os.path.join(OUT, "boot.gif")
+        boot[0].save(boot_path, save_all=True, append_images=boot[1:], duration=1000 // FPS, loop=0, optimize=True)
+        print("wrote", os.path.relpath(boot_path, ROOT))
+
         # Contact sheet of everything, 4 per row.
         cols = 4
         cw, ch = W * SCALE, H * SCALE
