@@ -1,46 +1,54 @@
 # Contributing
 
-Thanks for helping with Buzz's eyes. The system is intentionally simple so changes stay easy to review and port.
+Thanks for helping with Buzz's eyes. Read [ARCHITECTURE.md](ARCHITECTURE.md) first, then check [ROADMAP.md](ROADMAP.md) for what's next.
 
 ## Before you start
 
-1. Open `buzz_eyes_demo.html` in a browser and click through the moods.
-2. Read [ARCHITECTURE.md](ARCHITECTURE.md) so you know what the parameters do.
-3. Check [ROADMAP.md](ROADMAP.md) for current priorities.
+1. Look at every expression in the README (or `docs/expressions/all.png`).
+2. If you have a Flipper Zero: `cd flipper/buzz_eyes && ufbt launch` and click through the faces.
+3. Open `prototype/take-buzz-apart.html` in a browser to see the hardware the eyes run on.
 
-## Adding a new mood
+## Adding or changing an expression
 
-1. Add an entry to the `moods` object with the eight parameters.
-2. Add a button in the HTML controls that calls `setMood('yourMood')`.
-3. If the existing shape branches don't cover it, add a new `else if` in `drawEye` **before** the generic rounded-rect fallback.
-4. Test that it doesn't collide with nearby moods (happy/playful/love/cute share the `bottomPinch` range).
+1. Add an ID to `BzMoodId` in `flipper/buzz_eyes/buzz_faces.h`, **before** `BZ_MOOD_HALF` so it can be browsed.
+2. Add its bars and symbols in `buzz_faces.c`. `EYE(x, y1, h1, y2, h2, y3, h3, anim, slot)` makes one three-bar eye; the left eye starts at x=32, the right at x=80. Shorthands like `OPEN`, `ARCH` and `LINES` work inside `EYE`.
+3. Add a row to the `bz_moods` table with its name and animations.
+4. Give it a color in `bz_mood_color()` in `buzz_engine.c` if it shouldn't be Signal Blue.
+5. Optional: add a sound, light or vibration in `play_effects()` in `buzz_eyes_app.c`.
+6. Mirror the change in `prototype/take-buzz-apart.html` (the `M` and `COL` tables).
+7. Run `python3 tools/export_expressions.py`, then add the new GIF to the README tables.
 
-## Improving an existing shape
+## Design rules
 
-- Prefer adjusting the numbers in the `moods` object first.
-- Only change the path code in `drawEye` if the silhouette is fundamentally wrong.
-- Keep the shape readable at small size. Extreme detail usually gets lost on the target hardware.
-- After a change, click the mood several times and let it idle so you can see transitions and blinks.
+- **Bars carry the emotion.** Change heights and motion before adding symbols.
+- **Symbols are a last resort**, and stay small and in a corner.
+- **Readable at 1.27".** If it needs squinting on the Flipper, it's too detailed.
+- **Always on black.** Lit pixels on a black background, never a filled screen.
+- Keep colors to the palette in ARCHITECTURE.md unless the brand changes.
 
-## Style notes
+## Code style
 
-- The demo is a single HTML file on purpose. Don't split it into modules unless we decide to change the porting strategy.
-- Comments should explain *why* a threshold or offset exists, not just what the code does.
-- Match the existing naming and parameter style so the file stays scannable.
+- Engine code (`buzz_faces.*`, `buzz_engine.*`) is plain C99 with no platform headers and no `malloc`.
+- Comments explain *why* a value or threshold exists.
+- Match the existing naming: `bz_` for functions, `BZ_` for constants, `Bz` for types.
 
 ## Testing
 
-- Open the file directly in a browser (no server required).
-- Verify every mood button still works.
-- Check that idle looking-around and blinks still feel natural.
-- If you change screen proportions, confirm the eyes stay centered and don't clip.
+- `cd flipper/buzz_eyes && ufbt` must build with no warnings (the SDK treats warnings as errors).
+- `python3 tools/export_expressions.py` must run cleanly; look at `docs/expressions/all.png` for anything clipped or off-center.
+- On a Flipper, check the boot, blinks and every face you touched.
+- Open the teardown page and check the changed face on its screen.
+
+## Browser prototype
+
+`buzz_eyes_demo.html` is the original parametric demo. To add a mood there: add it to the `moods` object, add a button that calls `setMood('yourMood')`, and only add a new `drawEye` branch if the existing shapes can't cover it. Keep it a single self-contained file.
 
 ## Pull requests
 
-- One mood or one clear improvement per PR is easier to review.
-- Include a short description of what changed and why (e.g. "mad half-circles were reading as sad under rotation").
-- Screenshots or a short recording of the before/after are helpful.
+- One expression or one clear improvement per PR.
+- Say what changed and why, and attach the regenerated GIF.
+- Don't commit build output (`dist/`, `.vscode/`); the `.gitignore` covers it.
 
 ## Questions
 
-If something is unclear, open an issue. The architecture doc and this file are the source of truth for how the system is meant to grow.
+Open an issue. ARCHITECTURE.md and this file are the source of truth for how the system grows.
